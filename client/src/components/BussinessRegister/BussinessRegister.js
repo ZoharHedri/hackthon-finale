@@ -1,20 +1,14 @@
 import React, { Component } from 'react';
 import axios from 'axios';
+import { inject, observer } from '../../../node_modules/mobx-react';
 
+@inject('store')
+@observer
 class BussinessRegister extends Component {
-    constructor() {
-        super();
-        this.state = {
-            name: "",
-            phone: "",
-            category: "",
-            email: "",
-            password: "",
-            address: ""
-        }
-    }
+
     handleChange = event => {
-        this.setState({ [event.target.name]: event.target.value });
+        // this.setState({ [event.target.name]: event.target.value });
+        this.props.store.setRegister({ key: event.target.name, value: event.target.value })
     }
     handleSubmit = event => {
         event.preventDefault();
@@ -27,12 +21,12 @@ class BussinessRegister extends Component {
         return (
             <div>
                 <form onSubmit={this.handleSubmit}>
-                    <input onChange={this.handleChange} name="name" type="text" placeholder="name" value={this.state.name} />
-                    <input onChange={this.handleChange} name="category" type="text" placeholder="category" value={this.state.category} />
-                    <input onChange={this.handleChange} name="phone" type="text" placeholder="phone" value={this.state.phone} />
-                    <input onChange={this.handleChange} name="email" type="email" placeholder="email" value={this.state.email} />
-                    <input onChange={this.handleChange} name="password" type="password" placeholder="password" value={this.state.password} />
-                    <input onChange={this.handleChange} name="address" type="text" placeholder="address" value={this.state.address} />
+                    <input onChange={this.handleChange} name="name" type="text" placeholder="name" />
+                    <input onChange={this.handleChange} name="category" type="text" placeholder="category" value={this.props.store.register.category} />
+                    <input onChange={this.handleChange} name="phone" type="text" placeholder="phone" />
+                    <input onChange={this.handleChange} name="email" type="email" placeholder="email" />
+                    <input onChange={this.handleChange} name="password" type="password" placeholder="password" />
+                    <input onChange={this.handleChange} name="address" type="text" placeholder="address" />
                     <button type="submit">Register</button>
                 </form>
             </div >
