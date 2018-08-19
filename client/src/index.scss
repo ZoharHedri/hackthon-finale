@@ -1,0 +1,17 @@
+@import url("https://fonts.googleapis.com/css?family=Roboto:300,400,700");
+/* 
+FONT-FAMILY
+  HEADING = Segoe UI
+  BODY = Roboto
+ */
+ *,
+ *::before,
+ *::after{
+   margin: 0;
+   box-sizing: inherit;
+ }
+
+body {
+  box-sizing: border-box;
+  font-family: 'Roboto', sans-serif;
+}
