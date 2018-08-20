@@ -10,9 +10,19 @@ class Store {
         address: ""
     }
 
+    @observable login = {
+        email: "",
+        password: ""
+    }
+
     @action setRegister = (obj) => {
         this.register[obj.key] = obj.value;
         console.log('data chaged..');
+    }
+
+    @action setLogin = (obj) => {
+        this.login[obj.key] = obj.value;
+        console.log(this.login.email + ',' + this.login.password);
     }
 }
 
