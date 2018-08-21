@@ -28,7 +28,7 @@ class Login extends Component {
                 </div>
                 <div className="login__main">
                     <h1 className="login__header">Member Login</h1>
-                    <form className="login__form" onSubmit={this.handleSubmit}>
+                    <form autoComplete="off" className="login__form" onSubmit={this.handleSubmit}>
                         <div className="login__input-group">
                             <svg className="login__icon">
                                 <use xlinkHref="/sprite.svg#icon-mail4" />

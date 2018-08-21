@@ -77,6 +77,9 @@
         &:hover{
         background:linear-gradient(to right,  #329D2D 100%, #34BD5A);
         }
+        &:focus{
+            outline: none;
+        }
     }
 
     &__forgot{
