@@ -5,14 +5,11 @@ const jwt = require('jsonwebtoken');
 const passport = require('passport');
 
 Router.get('/', (req, res) => {
-    let newBussiness = new Bussiness({
-        name: "Salon Yofi",
-        phone: "054-22345782",
-        email: "example@gmail.com",
-        password: "123",
-        address: "123 street"
-    })
-    newBussiness.save(business => res.send(business));
+    Bussiness.find({})
+        .then(allbussiness => {
+            res.send({ success: true, bussiness: allbussiness });
+        })
+        .catch(err => res.send({ success: false, msg: `${err}` }));
 })
 
 Router.post('/register', (req, res) => {
@@ -40,7 +37,7 @@ Router.post('/login', (req, res) => {
 })
 
 // a simple test route to see if authentication works
-Router.get('/test', passport.authenticate('jwt', { session: false }), (req, res) => {
+Router.post('/test', passport.authenticate('jwt', { session: false }), (req, res) => {
     res.json({ success: true, msg: "it worked" });
 })
 
