@@ -1,0 +1,133 @@
+.register{
+    width: 1200px;
+    // height: 952px;
+    // background: orangered;
+    display: flex;
+    border-radius: 5px;
+    overflow: hidden;
+    box-shadow: 0 10px 15px rgba($color: #000000, $alpha: .2);
+    margin: 80px auto;
+    &__hero{
+        flex: 0 0 35%;
+        position: relative;
+        &::before{
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            content: "";
+            background: linear-gradient(to bottom, #E467FC, #190419);
+            filter: opacity(.5);
+        }
+    }
+
+    &__img{
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    &__main{
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    &__header{
+        font-family: 'Segoe UI',sans-serif;
+    }
+
+    &__form{
+        display: flex;
+        flex-direction: column;
+        width: 80%;
+    }
+
+    &__input-group{
+        display: flex;
+        flex-direction: column;
+        &:not(:last-child){
+            margin-bottom: 2rem;
+        }
+    }
+
+    &__label{
+        font-size: 1.6rem;
+        font-family: 'Segoe UI',sans-serif;
+        text-transform: uppercase;
+        color: #333;
+        font-weight: 300;
+        margin-bottom: .9rem;
+    }
+
+    &__input{
+        font-size: 1.2rem;
+        background: none;
+        border: none;  
+        margin-bottom: 5px;
+        color: #777777;
+        &:focus{
+            outline: none;
+        }
+    }
+
+    &__input:valid + &__valid{
+        background: green;
+        animation: valid .8s ease-in-out;
+    }
+
+    &__input:invalid + &__valid{
+        background: red;
+        animation: invalid .8s ease-in-out;
+    }
+
+    &__valid{
+        // width: 100%;
+        height: 3px;
+        border-radius: 100px;
+    }
+
+    &__select{
+        border-radius: 5px;
+        padding: 5px 10px;
+        -webkit-appearance: none;
+        overflow: hidden;
+    }
+
+    &__btn{
+        padding: 5px 15px;
+        border: none;
+        background: linear-gradient(to bottom, #5E54E9, #790065);
+        border-radius: 50px;
+        color: white;
+        font-size: 1.2rem;
+        margin-bottom: 1.6rem;
+        cursor: pointer;
+        align-self: flex-start;
+        &:hover{
+            background: linear-gradient(to bottom, #790065, #5E54E9);
+        }
+        &:focus{
+            outline: none;
+        }
+    }
+}
+
+@keyframes valid {
+    0%{
+        width: 0%;
+    }
+    100%{
+        width: 100%;
+    }
+}
+
+@keyframes invalid {
+    0%{
+        width: 0%;
+    }
+    100%{
+        width: 100%;
+    }
+}
