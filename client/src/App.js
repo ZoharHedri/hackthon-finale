@@ -8,7 +8,7 @@ class App extends Component {
       <BrowserRouter>
         <div>
           {/* TODO: here we define our routes */}
-          <BussinessRegister />
+          {/* <BussinessRegister /> */}
           <Login />
         </div>
       </BrowserRouter>
