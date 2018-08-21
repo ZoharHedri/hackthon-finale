@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const path = require('path');
+const BusinessRoute = require('./routes/BussinesRoute');
 
 // loading configuration setting this run on the machine
 require('dotenv').config({ path: path.join(__dirname, 'config', '.env') });
@@ -22,6 +23,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // TODO: need to add some routes in routes folder
+app.use('/bussiness', BusinessRoute);
 // TODO: jwt token for handling user authentication
 // TODO: nodemalier for sending email
 

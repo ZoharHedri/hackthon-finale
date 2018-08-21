@@ -14,21 +14,24 @@ class Activits extends Component {
         this.setState({ [e.target.name]: e.target.value })
     }
 
-    handleSubmit = (e) =>{
+    handleSubmit = (e) => {
+        e.preventDefault();
         let options = {}
-        options.headers = {Authorization : JSON.parse(localStorage.getItem('TOKEN'))}
+        options.headers = { Authorization: JSON.parse(localStorage.getItem('TOKEN')) }
         options.activits = this.state;
-        axios.post('',options)
+        axios.post('/activities/addActivity', options)
+            .then(res => { console.log(res.data) })
+            .catch(err => { console.log(err) })
     }
 
     render() {
         return (
             <div>
-                <form action="">
+                <form onSubmit={this.handleSubmit}>
                     Type <input type="text" name="type" placeholder="type" onChange={this.handleChange} />
                     Price <input type="text" name="price" placeholder="price" onChange={this.handleChange} />
                     Duration <input type="text" name="duration" placeholder="duration" onChange={this.handleChange} />
-                    <button onClick={this.handleSubmit}>Add</button>
+                    <button type="submit">Add</button>
                 </form>
             </div>
         )

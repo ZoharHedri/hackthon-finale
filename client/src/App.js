@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { BrowserRouter, Route } from 'react-router-dom'
-import Activits from './Activits'
+import Activits from './components/BussinessRegister/Activits'
 
 class App extends Component {
   render() {
