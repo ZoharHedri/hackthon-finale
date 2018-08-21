@@ -13,7 +13,7 @@ class Login extends Component {
             .then(res => {
                 if (res.data.success) {
                     // we saved the token from the server in localstorage
-                    localStorage.setItem('TOKEN', JSON.stringify(res.data.token));
+                    localStorage.setItem('TOKEN', res.data.token);
                 }
             });
     }
