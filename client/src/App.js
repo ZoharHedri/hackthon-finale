@@ -4,6 +4,8 @@ import BussinessRegister from './components/BussinessRegister/BussinessRegister'
 import Login from './components/Login/Login';
 import ForgotPassword from './components/ForgotPassword/ForgotPassword';
 import ResetPassword from './components/ResetPassword/ResetPassword';
+import AddClient from './components/BusinessClients/AddClient';
+import BusinessClints from './components/BusinessClients/BusinessClints';
 
 class App extends Component {
   render() {

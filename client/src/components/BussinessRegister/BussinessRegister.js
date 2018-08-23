@@ -83,7 +83,6 @@ class BussinessRegister extends Component {
                         <button className="register__btn" type="submit">Sign up</button>
                     </form>
                 </div>
-
             </div >
         )
     }
