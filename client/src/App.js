@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
-import { BrowserRouter, Route } from 'react-router-dom'
+import { BrowserRouter, Route } from 'react-router-dom';
+import Login from './components/Login/Login';
+
 import BussinessRegister from './components/BussinessRegister/BussinessRegister';
 import Login from './components/Login/Login';
 import AddClient from './components/BusinessClients/AddClient';
@@ -16,6 +18,7 @@ class App extends Component {
           <Route path="/bussiness/clients" component={AddClient} />
           <BusinessClints/>
           {/* <AddClient /> */}
+          {/* <BussinessRegister /> */}
         </div>
       </BrowserRouter>
     );

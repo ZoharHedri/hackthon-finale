@@ -17,6 +17,7 @@ class Store {
         password: ""
     }
 
+
     @observable client = {
         name: "",
         phone: "",
@@ -25,9 +26,6 @@ class Store {
     }
 
     @observable clients=[];
-
-
-
 
     @action setRegister = (obj) => {
         this.register[obj.key] = obj.value;
@@ -38,6 +36,7 @@ class Store {
         this.login[obj.key] = obj.value;
         console.log(this.login.email + ',' + this.login.password);
     }
+
 
     @action setClient = (obj) => {
         this.client[obj.key] = obj.value;
@@ -54,6 +53,7 @@ class Store {
             })
             .catch(err => console.log(err.msg));
     }
+
 
 }
 
