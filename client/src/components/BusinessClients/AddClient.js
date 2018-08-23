@@ -1,15 +1,21 @@
 import React, { Component } from 'react'; 
 import { inject, observer } from '../../../node_modules/mobx-react';
+import axios from 'axios';
 
 @inject('store')
 @observer
 class AddClient extends Component {
 
     handleChange = event => {
-        this.this.props.store.setRegister({ key: event.target.name, value: event.target.value  })
+        this.props.store.setClient({ key: event.target.name, value: event.target.value  })
     }
 
     handleSubmit = event =>{
+      // Prevent the default behavior of the page (refresh)-using in forms
+      event.preventDefault();
+      axios.post('/bussiness/client/', this.props.store.client)
+      .then(res => console.log(res.data))
+      .catch(err =>console.log(err.msg));
         
     }
 
