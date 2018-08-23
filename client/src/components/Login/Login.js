@@ -14,8 +14,11 @@ class Login extends Component {
                 if (res.data.success) {
                     // we saved the token from the server in localstorage
                     localStorage.setItem('TOKEN', res.data.token);
+                } else {
+                    console.log(res.data);
                 }
-            });
+            })
+            .catch(err => console.log(`${err}`));
     }
     handleChange = event => {
         this.props.store.setLogin({ key: event.target.name, value: event.target.value });
