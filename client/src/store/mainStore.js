@@ -1,4 +1,4 @@
-import { observable, action, computed } from 'mobx';
+import { observable, action } from 'mobx';
 import axios from 'axios';
 
 // TODO: here we will handle all of our states
@@ -118,6 +118,7 @@ class Store {
         let token = localStorage.getItem('TOKEN');
         let opts = {}
         opts.headers = { Authorization: token }
+        //go to '/bussiness' -> Router.get('/clients'...)
         axios.get('/bussiness/clients', opts)
             .then(res => {
                 this.clients = res.data.clients;
