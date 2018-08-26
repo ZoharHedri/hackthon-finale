@@ -1,18 +1,22 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 import { inject, observer } from '../../../node_modules/mobx-react';
+
+import FormCalendar from './FormCalendar';
 import BigCalendar from 'react-big-calendar';
 import moment from 'moment';
- import dates from '../../utils/dates';
- require('react-big-calendar/lib/css/react-big-calendar.css');
+// import dates from '../../utils/dates';
 
-let events = [
+require('react-big-calendar/lib/css/react-big-calendar.css');
+require('./BussinessCalendar.css');
+
+let myEventsList = [
     {
       id: 0,
       title: 'All Day Event very long title',
       allDay: true,
-      start: new Date(2015, 3, 0),
-      end: new Date(2015, 3, 1),
+      start: new Date(2018, 8, 0),
+      end: new Date(2018, 8, 1),
     },
     {
       id: 1,
@@ -31,8 +35,8 @@ let events = [
     {
       id: 3,
       title: 'DTS ENDS',
-      start: new Date(2016, 10, 6, 0, 0, 0),
-      end: new Date(2016, 10, 13, 0, 0, 0),
+      start: new Date(2018, 8, 6, 0, 0, 0),
+      end: new Date(2018, 8, 13, 0, 0, 0),
     },
   
     {
@@ -113,24 +117,30 @@ let events = [
     },
   ]
 
-// let allViews = Object.keys(BigCalendar.Views).map(k => BigCalendar.Views[k])
-
-
-
-// Setup the localizer by providing the moment (or globalize) Object
-// to the correct localizer.
+let allViews = Object.keys(BigCalendar.Views).map(k => BigCalendar.Views[k])
 BigCalendar.momentLocalizer(moment); // or globalizeLocalizer
 
-// const MyCalendar = props => (
-const MyCalendar = props => (
-    <div>
-       <BigCalendar
-      events={events}
-      startAccessor='startDate'
-      endAccessor='endDate'
-    /> 
+const handleSelect = ({ start, end }) => {
+  debugger;
+  alert("fdjhtd");
+}
 
-    </div>
+const Calendar = props => (
+  <div className="calanderConteiner">
+    <BigCalendar
+       events={myEventsList}
+       defaultView={BigCalendar.Views.WEEK}
+       views={allViews}
+       selectable
+       onSelectEvent={event => alert(event.title)}
+       onSelectSlot={handleSelect}
+      //  min={new Date(2018, 8, 1)}
+      //  max={new Date(2018, 9, 1)}
+      //  defaultDate={Date.now}
+      // startAccessor='startDate'
+      // endAccessor='endDate'
+    />
+  </div>
 );
 
 @inject('store')
@@ -140,7 +150,9 @@ class BussinessCalendar extends Component {
     render() {
         return (
             <div>
-                <MyCalendar
+                 <FormCalendar
+                />
+                <Calendar
                 />
             </div >
         )
