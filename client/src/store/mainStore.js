@@ -3,58 +3,157 @@ import axios from 'axios';
 
 // TODO: here we will handle all of our states
 class Store {
-    @observable register = {
+    @observable errors = [];
+
+    @observable registerBussinessForm = {
         name: "",
         phone: "",
         category: "",
         email: "",
         password: "",
+        confirmPassword: "",
         address: ""
     }
 
-    @observable login = {
+    @observable loginForm = {
         email: "",
         password: ""
     }
 
 
-    @observable client = {
+    @observable registerClientForm = {
         name: "",
         phone: "",
         email: "",
         password: ""
     }
 
-    @observable clients=[];
-
-    @action setRegister = (obj) => {
-        this.register[obj.key] = obj.value;
-        console.log('data chaged..');
+    @observable forgotPasswordForm = {
+        email: ""
     }
 
-    @action setLogin = (obj) => {
-        this.login[obj.key] = obj.value;
-        console.log(this.login.email + ',' + this.login.password);
+    @observable resetPasswordForm = {
+        password: "",
+        passwordConfirm: ""
+    }
+
+    @action setResetPasswordForm = (obj) => {
+        this.resetPasswordForm[obj.key] = obj.value;
+    }
+
+    @action setForgotPasswordForm = (obj) => {
+        this.forgotPasswordForm[obj.key] = obj.value;
+    }
+
+    @observable clients = [];
+
+    @observable message = null;
+
+    @action isExists = (user) => {
+        if (user === "Bussiness") {
+            if (this.registerBussinessForm.email === "") {
+                this.message = null;
+                return;
+            }
+            axios.post('/bussiness/isExists', { email: this.registerBussinessForm.email })
+                .then(res => {
+                    this.message = res.data.msg;
+                })
+                .catch(err => console.log(err.msg));
+        } else if (user === "client") {
+            if (this.registerClientForm.email === "") {
+                this.message = null;
+                return;
+            }
+            axios.post('/clients/isExists', { email: this.registerClientForm.email })
+                .then(res => {
+                    this.message = res.data.msg;
+                })
+                .catch(err => console.log(err.msg));
+        }
+    }
+
+    @action setRegisterBussinessForm = (obj) => {
+        this.registerBussinessForm[obj.key] = obj.value;
+    }
+
+    @action setLoginForm = (obj) => {
+        this.loginForm[obj.key] = obj.value;
+    }
+
+    // register to database
+    @action registerBussiness = () => {
+        axios.post('/bussiness/register', this.registerBussinessForm)
+            .then(res => {
+                if (res.data.success) {
+                    console.log(res.data)
+                } else {
+                    this.errors = res.data.errors;
+                }
+            })
+            .catch(err => console.log(err.msg));
+    }
+
+    //login to a database using email - BUSSINESS or CLIENT return
+    @action login = () => {
+        axios.post('/users/login', this.loginForm)
+            .then(res => {
+                if (res.data.success) {
+                    // we saved the token from the server in localstorage
+                    localStorage.setItem('TOKEN', res.data.token);
+                    this._clearErrors();
+                } else {
+                    this._addError(res.data.msg);
+                }
+            })
+            .catch(err => this._addError(err.msg));
     }
 
 
-    @action setClient = (obj) => {
-        this.client[obj.key] = obj.value;
-        console.log('data chaged..');
+    @action setRegisterClientForm = (obj) => {
+        this.registerClientForm[obj.key] = obj.value;
     }
 
     @action getClients() {
-        let token =localStorage.getItem('TOKEN');
+        let token = localStorage.getItem('TOKEN');
         let opts = {}
         opts.headers = { Authorization: token }
         axios.get('/bussiness/clients', opts)
             .then(res => {
                 this.clients = res.data.clients;
+                this._clearErrors();
             })
-            .catch(err => console.log(err.msg));
+            .catch(err => {
+                this._addError(err.msg);
+            });
     }
 
+    @action forgot = () => {
+        axios.post('/users/password/forgot', this.forgotPasswordForm)
+            .then(res => {
+                if (res.data.success) {
+                    this._clearErrors();
+                } else {
+                    this._addError(res.data.msg);
+                }
+            })
+            .catch(err => this.errors = err.response.data.errors);
+    }
 
+    @action resetPassword = (token) => {
+        axios.post('/users/password/reset/' + token, { password: this.resetPasswordForm.password })
+            .then(res => console.log(res.data))
+            .catch(err => console.log(`${err}`));
+    }
+
+    _addError = (message) => {
+        if (!this.errors.find(err => err === message)) {
+            this.errors.push(message);
+        }
+    }
+    _clearErrors = () => {
+        this.errors.length = 0;
+    }
 }
 
 // initialize our store

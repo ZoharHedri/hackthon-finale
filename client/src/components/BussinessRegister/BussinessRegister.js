@@ -1,23 +1,39 @@
 import React, { Component } from 'react';
-import axios from 'axios';
-import { inject, observer } from '../../../node_modules/mobx-react';
+import { inject, observer } from 'mobx-react';
 import './BussinessRegister.scss';
+import { debounce } from 'lodash';
+import Message from '../Message/Message';
+import ErrorList from '../ErrorList/ErrorList';
 
-@inject('store')
+@inject(allStore => ({
+    setRegisterBussinessForm: allStore.store.setRegisterBussinessForm,
+    registerBussiness: allStore.store.registerBussiness,
+    registerForm: allStore.store.registerBussinessForm,
+    isExists: allStore.store.isExists,
+    _clearErrors: allStore.store._clearErrors,
+    message: allStore.store.message
+}))
 @observer
 class BussinessRegister extends Component {
 
     handleChange = event => {
-        debugger;
-        this.props.store.setRegister({ key: event.target.name, value: event.target.value })
+        this.props.setRegisterBussinessForm({ key: event.target.name, value: event.target.value });
     }
 
     handleSubmit = event => {
         event.preventDefault();
-        axios.post('/bussiness/register', this.props.store.register)
-            .then(res => console.log(res.data))
-            .catch(err => console.log(err.msg));
+        this.props.registerBussiness();
     }
+
+    handleKeyUpEmail = debounce(() => {
+        this.props.isExists("bussiness");
+    }, 500);
+
+    componentWillUnmount() {
+        this.handleKeyUpEmail.cancel();
+        this.props._clearErrors();
+    }
+
     render() {
         return (
             <div className="register">
@@ -26,35 +42,45 @@ class BussinessRegister extends Component {
                 </div>
                 <div className="register__main">
                     <h1 className="register__header">Sign Up</h1>
-                    <form autoComplete="off" className="register__form" onSubmit={this.handleSubmit}>
+                    <ErrorList />
+                    <form noValidate autoComplete="off" className="register__form" onSubmit={this.handleSubmit}>
                         <div className="register__input-group">
                             <span className="register__label" >Full Name</span>
-                            <input required className="register__input" onChange={this.handleChange} name="name" type="text" placeholder="name" value={this.props.store.register.name} />
+                            <input required className="register__input" onChange={this.handleChange} name="name" type="text" placeholder="name" value={this.props.registerForm.name} />
                             <div className="register__valid"></div>
                         </div>
                         <div className="register__input-group">
                             <span className="register__label" >Phone</span>
-                            <input required className="register__input" onChange={this.handleChange} name="phone" type="text" placeholder="phone" value={this.props.store.register.phone} />
+                            <input required className="register__input" onChange={this.handleChange} name="phone" type="text" placeholder="phone" value={this.props.registerForm.phone} />
                             <div className="register__valid"></div>
                         </div>
                         <div className="register__input-group">
                             <span className="register__label" >Email</span>
-                            <input required className="register__input" onChange={this.handleChange} name="email" type="email" placeholder="email" value={this.props.store.register.email} />
-                            <div className="register__valid"></div>
+                            <div className="register__input-msg-group">
+                                <input required className="register__input" onKeyUp={this.handleKeyUpEmail} onChange={this.handleChange} name="email" type="email" placeholder="email" value={this.props.registerForm.email} />
+                                {this.props.message && <Message className="register__msg" message={this.props.message} />}
+                                <div className="register__valid"></div>
+                            </div>
                         </div>
                         <div className="register__input-group">
                             <span className="register__label" >Password</span>
-                            <input required className="register__input" onChange={this.handleChange} name="password" type="password" placeholder="password" value={this.props.store.register.password} />
+                            <input required className="register__input" onChange={this.handleChange} name="password" type="password" placeholder="password" value={this.props.registerForm.password} />
+                            <div className="register__valid"></div>
+                        </div>
+                        <div className="register__input-group">
+                            <span className="register__label" >Confirm Password</span>
+                            <input required className="register__input" onChange={this.handleChange} name="confirmPassword" type="password" placeholder="retype password" value={this.props.registerForm.confirmPassword} />
                             <div className="register__valid"></div>
                         </div>
                         <div className="register__input-group">
                             <span className="register__label" >Address</span>
-                            <input required className="register__input" onChange={this.handleChange} name="address" type="text" placeholder="address" value={this.props.store.register.address} />
+                            <input required className="register__input" onChange={this.handleChange} name="address" type="text" placeholder="address" value={this.props.registerForm.address} />
                             <div className="register__valid"></div>
                         </div>
                         <div className="register__input-group">
                             <span className="register__label" >Category</span>
                             <select className="register__select" onChange={this.handleChange} name="category">
+                                <option selected="true" disabled="disabled" hidden="hidden">Choose Category</option>
                                 <option value="Arts, crafts, and collectibles">Arts, crafts, and collectibles</option>
                                 <option value="Baby">Baby</option>
                                 <option value="Beauty and fragrances">Beauty and fragrances</option>

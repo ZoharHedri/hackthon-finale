@@ -86,19 +86,38 @@
         margin-top: 1.6rem;
         color: #1B47FE;
         align-self: flex-start;
+        text-decoration: none;
         &:hover{
             cursor: pointer;
-            font-weight: 700;
+            text-decoration: underline;
         }
     }
     &__account{
         color:  #777777;
         margin-top: auto; 
         margin-bottom: 1.6rem;
+        text-decoration: none;
+    }
+    &__path:link,
+    &__path:visited,{
+        text-decoration: none;
+        color: #1B47FE;
+        background: #86FCFF;
+        text-transform: capitalize;
+        font-weight: 700;
+        padding: 0px 10px;
+        border-radius: 21px;
         &:hover{
-            cursor: pointer;
             text-decoration: underline;
         }
+        
+        
     }
+    &__path--red:link,
+    &__path--red:visited{
+        color: #FD0303;
+        background: #F3949F;
+    }
+    
     
 }
