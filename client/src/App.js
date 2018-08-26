@@ -13,11 +13,15 @@ class App extends Component {
       <BrowserRouter>
         <div>
           {/* TODO: here we define our routes */}
-          <Login />
-          <ForgotPassword />
-          <ResetPassword />
+          <Route exact path="/" component={Login} />
+          <Route exact path="/password/forgot" component={ForgotPassword} />
+          <Route exact path="/password/reset/:token" component={ResetPassword} />
+          <Route exact path="/bussiness/register" component={BussinessRegister} />
+          <Route exact path="/client/register" component={AddClient} />
+
+          {/* <ResetPassword />
           <BussinessRegister />
-          <Route exact path="/reset-password/:token" component={ResetPassword} />
+          <Route exact path="/reset-password/:token" component={ResetPassword} /> */}
         </div>
       </BrowserRouter>
     );

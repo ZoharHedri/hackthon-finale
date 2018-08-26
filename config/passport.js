@@ -2,7 +2,11 @@ const JwtStrategy = require('passport-jwt').Strategy;
 // we can extract the token from th header token
 const ExtractJwt = require('passport-jwt').ExtractJwt;
 
+let Activty = require('../model/ActivtyModel');
+let WorkDay = require('../model/WorkDayModel');
 let Bussiness = require('../model/BussinesModel');
+let Client = require('../model/ClientsModel');
+let Event = require('../model/EventModel');
 
 module.exports = function (passport) {
     let opts = {};
@@ -11,13 +15,18 @@ module.exports = function (passport) {
 
     // we use the passport and set its sttrategy to jwt
     passport.use(new JwtStrategy(opts, function (jwt_payload, done) {
-        Bussiness.findOne({ _id: jwt_payload.id })
+        Bussiness.findOne({ _id: jwt_payload.id }).populate('workingDays clients activites').exec()
             .then(bussiness => {
                 if (bussiness) {
                     return done(null, bussiness);
                 } else {
-                    // if user not found
-                    return done(null, false);
+                    // if user not found we need to check if its a client
+                    Client.findOne({ _id: jwt_payload.id }).populate('events events.activityId')
+                        .then(client => {
+                            if (!client) return done(null, false);
+                            return done(null, client);
+                        })
+                        .catch(err => done(err, false));
                 }
             })
             .catch(err => done(err, false));

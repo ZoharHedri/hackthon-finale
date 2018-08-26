@@ -1,0 +1,10 @@
+.error{
+    background:#FFD2D2;
+    padding:5px 15px;
+    color: #D8000C;
+    text-transform: capitalize;
+    border-radius: 3px;
+    &:not(:last-child){
+        margin-bottom: 16px;
+    } 
+}

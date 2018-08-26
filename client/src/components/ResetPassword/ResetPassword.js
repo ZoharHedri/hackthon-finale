@@ -1,20 +1,21 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 import './ResetPassword.scss';
+import { observer, inject } from 'mobx-react';
 
+@inject("store")
+@observer
 export class ResetPassword extends Component {
     state = {
         password: "",
         passwordConfirm: ""
     }
     handleChange = e => {
-        this.setState({ [e.target.name]: e.target.value });
+        this.props.store.setResetPasswordForm({ key: e.target.name, value: e.target.value })
     }
     handleSubmit = e => {
         e.preventDefault();
-        axios.post('/bussiness/reset-password/' + this.props.match.params.token, { password: this.state.password }, )
-            .then(res => console.log(res.data))
-            .catch(err => console.log(`${err}`));
+        this.props.store.resetPassword(this.props.match.params.token);
     }
     render() {
         return (
@@ -29,12 +30,12 @@ export class ResetPassword extends Component {
                     <form noValidate className="reset__form" onSubmit={this.handleSubmit}>
                         <div className="reset__input-group">
                             <span className="reset__label" >Password</span>
-                            <input required className="reset__input" onChange={this.handleChange} type="password" name="password" placeholder="password" value={this.state.password} />
+                            <input required className="reset__input" onChange={this.handleChange} type="password" name="password" placeholder="password" value={this.props.store.resetPasswordForm.password} />
                             <div className="reset__valid"></div>
                         </div>
                         <div className="reset__input-group">
                             <span className="reset__label" >Confirm Password</span>
-                            <input required className="reset__input" onChange={this.handleChange} type="password" name="passwordConfirm" placeholder="retype password" value={this.state.passwordConfirm} />
+                            <input required className="reset__input" onChange={this.handleChange} type="password" name="passwordConfirm" placeholder="retype password" value={this.props.store.resetPasswordForm.passwordConfirm} />
                             <div className="reset__valid"></div>
                         </div>
                         <button className="reset__btn" type="submit">Reset My Password</button>
