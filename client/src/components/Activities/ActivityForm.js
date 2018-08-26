@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import axios from 'axios'
 
-class Activits extends Component {
+class ActivityForm extends Component {
     constructor() {
         super();
         this.state = {
@@ -10,16 +10,30 @@ class Activits extends Component {
             duration: ""
         }
     }
+
     handleChange = (e) => {
         this.setState({ [e.target.name]: e.target.value })
     }
 
     handleSubmit = (e) => {
         e.preventDefault();
-        let options = {}
-        options.headers = { Authorization: JSON.parse(localStorage.getItem('TOKEN')) }
-        options.activits = this.state;
-        axios.post('/activities/addActivity', options)
+        let token = localStorage.getItem('TOKEN');
+        let options = {};
+        options.headers = { "Authorization": token };
+        let activits = this.state;
+        axios.post('/activities/addActivity', activits, options)
+            .then(res => {
+                debugger;
+                console.log(res.data)
+            })
+            .catch(err => { console.log(err) })
+    }
+
+    componentDidMount() {
+        let token = localStorage.getItem('TOKEN');
+        let options = {};
+        options.headers = { "Authorization": token };
+        axios.get('/activities', options)
             .then(res => { console.log(res.data) })
             .catch(err => { console.log(err) })
     }
@@ -38,4 +52,4 @@ class Activits extends Component {
     }
 }
 
-export default Activits;
+export default ActivityForm;

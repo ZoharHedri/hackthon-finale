@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
-import { BrowserRouter, Route } from 'react-router-dom'
-import Activits from './components/BussinessRegister/Activits'
+import { BrowserRouter, Route } from 'react-router-dom';
+import ActivityForm from './components/Activities/ActivityForm';
+import Login from './components/Login/Login';
 
 class App extends Component {
   render() {
@@ -8,7 +9,9 @@ class App extends Component {
       <BrowserRouter>
         <div>
           {/* TODO: here we define our routes */}
-          <Activits/>
+          <Login />
+          <ActivityForm />
+
         </div>
       </BrowserRouter>
     );
