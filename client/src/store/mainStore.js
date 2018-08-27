@@ -37,6 +37,36 @@ class Store {
         passwordConfirm: ""
     }
 
+    @observable userStatus = {
+        loggedIn: false,
+        userModel: ""
+    }
+
+    @action automaticLogin = () => {
+        let token = localStorage.getItem("TOKEN");
+        if (token) {
+            let opts = {};
+            opts.headers = { Authorization: token };
+            let current = this;
+            axios.get('/users/automaticLogin', opts)
+                .then(res => {
+                    debugger;
+                    if (res.data.success) {
+                        let user = {
+                            loggedIn: true,
+                            userModel: res.data.user + "/dashboard"
+                        }
+                        current.userStatus = user;
+                    }
+                })
+                .catch(err => {
+                    current.userStatus.loggedIn = false;
+                    console.log(err);
+                });
+        }
+    }
+
+
     @action setResetPasswordForm = (obj) => {
         this.resetPasswordForm[obj.key] = obj.value;
     }
@@ -94,6 +124,18 @@ class Store {
             .catch(err => console.log(err.msg));
     }
 
+    @action registerClient = () => {
+        axios.post('/clients/register', this.registerClientForm)
+            .then(res => {
+                if (res.data.success) {
+                    console.log(res.data)
+                } else {
+                    this.errors = res.data.errors;
+                }
+            })
+            .catch(err => console.log(err.msg));
+    }
+
     //login to a database using email - BUSSINESS or CLIENT return
     @action login = () => {
         axios.post('/users/login', this.loginForm)
@@ -101,8 +143,10 @@ class Store {
                 if (res.data.success) {
                     // we saved the token from the server in localstorage
                     localStorage.setItem('TOKEN', res.data.token);
+                    this.loggedIn = true;
                     this._clearErrors();
                 } else {
+                    this.loggedIn = false;
                     this._addError(res.data.msg);
                 }
             })
