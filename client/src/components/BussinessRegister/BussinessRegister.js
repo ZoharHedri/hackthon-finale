@@ -11,6 +11,7 @@ import ErrorList from '../ErrorList/ErrorList';
     registerForm: allStore.store.registerBussinessForm,
     isExists: allStore.store.isExists,
     _clearErrors: allStore.store._clearErrors,
+    _clearMessage: allStore.store._clearMessage,
     message: allStore.store.message
 }))
 @observer
@@ -32,6 +33,7 @@ class BussinessRegister extends Component {
     componentWillUnmount() {
         this.handleKeyUpEmail.cancel();
         this.props._clearErrors();
+        this.props._clearMessage();
     }
 
     render() {

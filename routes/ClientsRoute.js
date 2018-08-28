@@ -13,11 +13,11 @@ Router.post('/register', (req, res) => {
     req.check('password', 'password is required').notEmpty();
     req.checkBody('confirmPassword', "password don't match").equals(req.body.password);
     let errors = req.validationErrors();
-    errors = errors.reduce((arr, curr) => {
-        arr.push(curr.msg);
-        return arr;
-    }, []);
     if (errors) {
+        errors = errors.reduce((arr, curr) => {
+            arr.push(curr.msg);
+            return arr;
+        }, []);
         return res.send({ success: false, errors: errors });
     }
 

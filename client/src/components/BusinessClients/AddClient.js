@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { inject, observer } from 'mobx-react';
-import axios from 'axios';
 import './AddClient.scss';
 import ErrorList from '../ErrorList/ErrorList';
 import Message from '../Message/Message';
@@ -17,9 +16,7 @@ class AddClient extends Component {
   handleSubmit = event => {
     // Prevent the default behavior of the page (refresh)-using in forms
     event.preventDefault();
-    axios.post('/clients/register/', this.props.store.registerClientForm)
-      .then(res => console.log(res.data))
-      .catch(err => console.log(err.msg));
+    this.props.store.registerClient();
 
   }
   handleKeyUpEmail = debounce(() => {
@@ -28,7 +25,8 @@ class AddClient extends Component {
 
   componentWillUnmount() {
     this.handleKeyUpEmail.cancel();
-    this.props._clearErrors();
+    this.props.store._clearErrors();
+    this.props.store._clearMessage();
   }
 
 
@@ -63,6 +61,11 @@ class AddClient extends Component {
             <div className="register__input-group">
               <span className="register__label" >Password</span>
               <input required className="register__input" onChange={this.handleChange} name="password" type="password" placeholder="password" />
+              <div className="register__valid"></div>
+            </div>
+            <div className="register__input-group">
+              <span className="register__label" >Confirm Password</span>
+              <input required className="register__input" onChange={this.handleChange} name="confirmPassword" type="password" placeholder="retype password" />
               <div className="register__valid"></div>
             </div>
             <button className="register__btn" type="submit">Register</button>
