@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { inject, observer } from 'mobx-react';
-import axios from 'axios';
 import './AddClient.scss';
 import ErrorList from '../ErrorList/ErrorList';
 import Message from '../Message/Message';
@@ -27,6 +26,7 @@ class AddClient extends Component {
   componentWillUnmount() {
     this.handleKeyUpEmail.cancel();
     this.props.store._clearErrors();
+    this.props.store._clearMessage();
   }
 
 

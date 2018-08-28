@@ -10,6 +10,7 @@ class Store {
         phone: "",
         category: "",
         email: "",
+        oldPassword: "",
         password: "",
         confirmPassword: "",
         address: ""
@@ -42,6 +43,28 @@ class Store {
         userModel: ""
     }
 
+    @computed get getSetting() {
+        return this.registerBussinessForm;
+    }
+
+    @action getSettingApi = () => {
+        let token = localStorage.getItem("TOKEN");
+        let opts = {};
+        opts.headers = { Authorization: token };
+        axios.get('/bussiness/setting', opts)
+            .then(res => {
+                this.registerBussinessForm = res.data.info;
+            })
+            .catch(err => console.log(err));
+    }
+
+    @action _setErrors = (errors) => {
+        debugger;
+        this.errors = errors;
+    }
+
+
+
     @action automaticLogin = () => {
         let token = localStorage.getItem("TOKEN");
         if (token) {
@@ -50,7 +73,6 @@ class Store {
             let current = this;
             axios.get('/users/automaticLogin', opts)
                 .then(res => {
-                    debugger;
                     if (res.data.success) {
                         let user = {
                             loggedIn: true,
@@ -80,7 +102,7 @@ class Store {
     @observable message = null;
 
     @action isExists = (user) => {
-        if (user === "Bussiness") {
+        if (user === "bussiness") {
             if (this.registerBussinessForm.email === "") {
                 this.message = null;
                 return;
@@ -143,7 +165,11 @@ class Store {
                 if (res.data.success) {
                     // we saved the token from the server in localstorage
                     localStorage.setItem('TOKEN', res.data.token);
-                    this.loggedIn = true;
+                    let user = {
+                        loggedIn: true,
+                        userModel: res.data.user + "/dashboard"
+                    }
+                    this.userStatus = user;
                     this._clearErrors();
                 } else {
                     this.loggedIn = false;
@@ -162,6 +188,7 @@ class Store {
         let token = localStorage.getItem('TOKEN');
         let opts = {}
         opts.headers = { Authorization: token }
+        //go to '/bussiness' -> Router.get('/clients'...)
         axios.get('/bussiness/clients', opts)
             .then(res => {
                 this.clients = res.data.clients;
@@ -170,6 +197,18 @@ class Store {
             .catch(err => {
                 this._addError(err.msg);
             });
+    }
+
+    @action logout = () => {
+        let user = {
+            loggedIn: false,
+            userModel: ""
+        }
+        this.userStatus = user;
+    }
+
+    @action _clearMessage = () => {
+        this.message = "";
     }
 
     @action forgot = () => {
