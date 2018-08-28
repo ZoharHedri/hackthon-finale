@@ -49,6 +49,8 @@ class Store {
 
     @observable message = null;
 
+    @observable businesses = [];
+
     @action isExists = (user) => {
         if (user === "Bussiness") {
             if (this.registerBussinessForm.email === "") {
@@ -154,6 +156,10 @@ class Store {
     }
     _clearErrors = () => {
         this.errors.length = 0;
+    }
+
+    @action updateBusinessArr(arr){
+        this.business = arr;
     }
 }
 
