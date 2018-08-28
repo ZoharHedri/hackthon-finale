@@ -10,6 +10,8 @@ Router.get('/', passport.authenticate('jwt', { session: false }), (req, res) => 
 
     //1. check what i have in req!
     //2. if (req.user.id)...{
+        //activites & clients(?) & _id & name & phone & category & email & address
+    console.log(req.user);
     res.send({ success: true, details: req.user });
     //}
 
