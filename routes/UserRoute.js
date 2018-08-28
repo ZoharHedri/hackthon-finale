@@ -17,7 +17,7 @@ Router.post('/login', (req, res) => {
                         if (!client) return res.json({ success: false, msg: "Invalid Username or Password" });
                         if (client.password === req.body.password) {
                             let token = jwt.sign({ id: client.id }, process.env.SECERT_KEY);
-                            return res.json({ success: true, user: 'Client', token: 'JWT ' + token })
+                            return res.json({ success: true, user: 'client', token: 'JWT ' + token })
                         } else {
                             return res.json({ success: false, msg: "Invalid Username or Password" });
                         }
@@ -29,7 +29,7 @@ Router.post('/login', (req, res) => {
                 if (isMatch && !err) {
                     // we creating the token
                     let token = jwt.sign({ id: user.id }, process.env.SECERT_KEY);
-                    return res.json({ success: true, user: 'Bussiness', token: 'JWT ' + token })
+                    return res.json({ success: true, user: 'business', token: 'JWT ' + token })
                 }
                 return res.json({ success: false, msg: "Invalid Username or Password" });
             })

@@ -7,13 +7,13 @@ const Bussiness = require('../model/BussinesModel'); //get the bussines data fro
 //jwt = Json Web Token, for authentication
 //'passport.authenticate' go to mongoDB and find the user with that TOKEN and put the user on the 'req' parameter 
 Router.get('/', passport.authenticate('jwt', { session: false }), (req, res) => {
-    
+
     //1. check what i have in req!
     //2. if (req.user.id)...{
-        res.send({ success: true, details: req });
+    res.send({ success: true, details: req.user });
     //}
-    
+
     //.catch(err => res.send({ success: false, msg: `${err}` }));
 })
 
-module.exports=Router;
+module.exports = Router;
