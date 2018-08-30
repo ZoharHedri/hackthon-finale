@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const bcryptjs = require('bcryptjs');
+const conn = require('../config/conncetion');
 
 
 const BussinessSchema = new Schema({
@@ -43,4 +44,4 @@ BussinessSchema.methods.comparePassword = function (psw, cb) {
     })
 }
 
-module.exports = mongoose.model('business', BussinessSchema);
+module.exports = conn.model('business', BussinessSchema);

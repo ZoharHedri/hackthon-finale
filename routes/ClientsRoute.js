@@ -3,7 +3,6 @@ const Router = express.Router();
 const passport = require('passport');
 const Client = require('../model/ClientsModel');
 
-
 Router.post('/register', (req, res) => {
     req.check('name', 'name is required').notEmpty();
     req.check('phone', 'phone is not valid').isMobilePhone();
@@ -20,7 +19,7 @@ Router.post('/register', (req, res) => {
         }, []);
         return res.send({ success: false, errors: errors });
     }
-
+    req.body.avatarUrl = req.file.filename;
     let newClient = new Client(req.body);
     newClient.save()
         .then(Client => res.json({ success: true, msg: "u have been registerd" }))

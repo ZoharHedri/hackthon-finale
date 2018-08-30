@@ -10,7 +10,12 @@ import { debounce } from 'lodash';
 class AddClient extends Component {
 
   handleChange = event => {
-    this.props.store.setRegisterClientForm({ key: event.target.name, value: event.target.value })
+    if (event.target.name === "avatar") {
+      this.props.store.setRegisterClientForm({ key: event.target.name, value: event.target.files[0] })
+    }
+    else {
+      this.props.store.setRegisterClientForm({ key: event.target.name, value: event.target.value })
+    }
   }
 
   handleSubmit = event => {
@@ -67,6 +72,10 @@ class AddClient extends Component {
               <span className="register__label" >Confirm Password</span>
               <input required className="register__input" onChange={this.handleChange} name="confirmPassword" type="password" placeholder="retype password" />
               <div className="register__valid"></div>
+            </div>
+            <div className="register__input-group">
+              <span className="register__label" >Upload File</span>
+              <input required className="register__input" onChange={this.handleChange} name="avatar" type="file" />
             </div>
             <button className="register__btn" type="submit">Register</button>
           </form>

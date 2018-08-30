@@ -1,34 +1,59 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const mongoose = require('mongoose');
 const path = require('path');
 const passport = require('passport');
 const expressValidator = require('express-validator');
-const UserRoute = require('./routes/UserRoute');
-const BusinessRoute = require('./routes/BussinesRoute');
-const ClientsRoute = require('./routes/ClientsRoute');
-//
-const DashboardRoute = require('./routes/DashboardRoute');
+const multer = require('multer');
+const GridFsStorage = require('multer-gridfs-storage');
+const Grid = require('gridfs-stream');
+const crypto = require('crypto')
+const mongoose = require('mongoose');
 
 // loading configuration setting this run on the machine
 require('dotenv').config({ path: path.join(__dirname, 'config', '.env') });
 
+const conn = require('./config/conncetion');
 
-// mongoose connection
-mongoose.connect(process.env.DB_HOST, {
-    useNewUrlParser: true,
-    user: process.env.DB_USER,
-    pass: process.env.DB_PASS
+let gfs;
+conn.once('open', function () {
+    console.log('mongodb is connected');
+    gfs = Grid(conn.db, mongoose.mongo);
+    gfs.collection('uploads');
 })
-    .then(() => console.log('connected to DB.'))
-    .catch(err => console.log(`${err}`));
 
+
+let storage = new GridFsStorage({
+    url: `mongodb://${process.env.DB_USER}:${process.env.DB_PASS}@ds125862.mlab.com:25862/hackton_db`,
+    file: (req, file) => {
+        return new Promise((resolve, reject) => {
+            crypto.randomBytes(16, (err, buf) => {
+                if (err) {
+                    return reject(err);
+                }
+                const filename = buf.toString('hex') + path.extname(file.originalname);
+                const fileInfo = {
+                    filename: filename,
+                    bucketName: 'uploads'
+                };
+                resolve(fileInfo);
+            });
+        });
+    }
+})
+
+let upload = multer({ storage: storage });
+
+
+const UserRoute = require('./routes/UserRoute');
+const BusinessRoute = require('./routes/BussinesRoute');
+const ClientsRoute = require('./routes/ClientsRoute');
+const DashboardRoute = require('./routes/DashboardRoute');
 
 const app = express();
 
 // body parser middleware
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({ extended: false }));
 
 // express validator middleware
 app.use(expressValidator());
@@ -43,10 +68,15 @@ require('./config/passport')(passport);
 // TODO: need to add some routes in routes folder
 app.use('/users', UserRoute);
 app.use('/bussiness', BusinessRoute);
-app.use('/clients', ClientsRoute);
-app.use('/dashboard' ,DashboardRoute);
-// TODO: jwt token for handling user authentication
-// TODO: nodemalier for sending email
+app.use('/clients', upload.single('avatar'), ClientsRoute);
+app.use('/dashboard', DashboardRoute);
+app.get('/images/:filename', (req, res) => {
+    gfs.files.findOne({ filename: req.params.filename }, (function (err, file) {
+        if (err) return res.json({ err: "something happend" })
+        var readstream = gfs.createReadStream(file.filename);
+        readstream.pipe(res);
+    }))
+})
 
 
 const PORT = process.env.PORT || 8000;

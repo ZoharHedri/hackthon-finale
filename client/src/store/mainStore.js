@@ -147,7 +147,15 @@ class Store {
     }
 
     @action registerClient = () => {
-        axios.post('/clients/register', this.registerClientForm)
+        let fd = new FormData();
+        for (let key in this.registerClientForm) {
+            fd.append(key, this.registerClientForm[key])
+        }
+        let opts = {};
+        opts.headers = {
+            contentType: "multipart/form-data"
+        }
+        axios.post('/clients/register', fd, opts)
             .then(res => {
                 if (res.data.success) {
                     console.log(res.data)

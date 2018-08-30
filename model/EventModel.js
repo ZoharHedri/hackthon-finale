@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+const conn = require('../config/conncetion');
 
 const EventSchema = new Schema({
     activityId: { type: Schema.Types.ObjectId, ref: 'activty' },
@@ -7,4 +8,4 @@ const EventSchema = new Schema({
     startingTime: { type: String, required: true }
 });
 
-module.exports = mongoose.model('event', EventSchema);
+module.exports = conn.model('event', EventSchema);
