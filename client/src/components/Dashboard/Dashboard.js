@@ -16,10 +16,11 @@ const Details = (props) => {
     const detailsOfUser = props.detailsUser; //the 'detailsOfUser' is object! not array
     // debugger;
     return (
-        <div className="Details">
+        <div className="business-details">
             <h1 className="business-h">Details Bussiness</h1>
             <p className="business-time">{currentTime}</p>
-            <div key={detailsOfUser.id}>
+            <div> 
+                {/* key={detailsOfUser.id} */}
                 <h1 className="business-name">{detailsOfUser.name}</h1>
                 <h3 className="business-address">{detailsOfUser.address}</h3><br/>
                 <p className="business-category">{detailsOfUser.category}</p><br/>
@@ -30,16 +31,18 @@ const Details = (props) => {
 }
 
 const TodayActivities = (props) => {
-    const activitesBusiness = props.activites; //'activitesBusiness' array
-    //duration ,price, type
-    //debugger;
-    console.log(activitesBusiness);
+    
+    debugger;
+    const actDetails  = props; //actDetails = object (with '.__proto__' func) 
+    console.log(actDetails); 
+    // console.log(Object.keys(actDetails)); 
     return (
         <div className="today-activities">
             <h1 className="today-h">TodayActivities</h1>
-            {/* {activitesBusiness.map((item) =>  */}
-            {/* <div key={item.id}>{item.duration} {item.price}{item.type}</div> */}
-            {/* )} */}
+            {actDetails.date}
+            {/* {actDetails.map((item) => 
+            <div key={item.id}>{item.date} </div> 
+             )}  */}
         </div>
     );
 }
@@ -64,7 +67,7 @@ class Dashboard extends Component {
         axios.get("/dashboard", dashToken)
             .then(res => {
                 this.setState({user: res.data.details}); 
-                //debugger;
+                // debugger;
                 console.log(res.data.success); //good
             })
             .catch(err => console.error(`${err} - ERR mesage`));
@@ -75,7 +78,8 @@ class Dashboard extends Component {
             <div className="business-dashboard">
                 <Details detailsUser={this.state.user} />
                 <hr />
-                <TodayActivities activites={this.state.user.activites}/>
+                {/*activites={this.state.user.activites} */}
+                 <TodayActivities workingDays={this.state.user.workingDays}/>
                 <hr />
                 <Statistic />
 
