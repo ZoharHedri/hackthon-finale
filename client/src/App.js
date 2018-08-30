@@ -8,8 +8,9 @@ import ResetPassword from './components/ResetPassword/ResetPassword';
 import AddClient from './components/BusinessClients/AddClient';
 import Bussiness from './components/Bussiness/Bussiness';
 import { inject, observer } from '../node_modules/mobx-react';
-
+import Search from './components/Search/SearchBar';
 // import Dashboard from './components/Dashboard/Dashboard';
+import BusinessList from './components/Search/BusinessList';
 
 @inject("store")
 @observer
@@ -25,6 +26,7 @@ class App extends Component {
           <Route path="/business" render={(props) => (
             this.props.store.userStatus.loggedIn ? <Bussiness {...props} /> : <Redirect to="/" />
           )} />
+          <Route path = "/client/dashboard" component={Search} />
           <Route exact path="/password/forgot" component={ForgotPassword} />
           <Route exact path="/password/reset/:token" component={ResetPassword} />
           <Route exact path="/bussiness/register" component={BussinessRegister} />
@@ -34,8 +36,10 @@ class App extends Component {
           {/* <ResetPassword />
           <BussinessRegister />
           <Route exact path="/reset-password/:token" component={ResetPassword} /> */}
+          <BusinessList/>
         </div>
       </BrowserRouter>
+      
     );
   }
 }

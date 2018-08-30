@@ -125,6 +125,8 @@ class Store {
 
     @observable message = null;
 
+    @observable business = [];
+
     @action isExists = (user) => {
         if (user === "bussiness") {
             if (this.registerBussinessForm.email === "") {
@@ -273,6 +275,10 @@ class Store {
     }
     _clearErrors = () => {
         this.errors.length = 0;
+    }
+
+    @action updateBusinessArr(filter){
+        this.business = filter;
     }
 }
 
