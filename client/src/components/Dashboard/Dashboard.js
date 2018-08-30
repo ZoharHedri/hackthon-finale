@@ -40,6 +40,7 @@ const TodayActivities = (props) => {
         <div className="today-activities">
             <h1 className="today-h">TodayActivities</h1>
             {actDetails.date}
+            {actDetails._id}
             {/* {actDetails.map((item) => 
             <div key={item.id}>{item.date} </div> 
              )}  */}
