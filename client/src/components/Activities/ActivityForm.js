@@ -1,41 +1,26 @@
 import React, { Component } from 'react'
 import axios from 'axios'
+import { observer, inject } from 'mobx-react';
+import Activity from './Activity';
 
+@inject("store")
+@observer
 class ActivityForm extends Component {
     constructor() {
         super();
-        this.state = {
-            type: "",
-            price: "",
-            duration: ""
-        }
     }
 
     handleChange = (e) => {
-        this.setState({ [e.target.name]: e.target.value })
+        this.props.store.setActivityForm({ key: e.target.name, value: e.target.value })
     }
 
     handleSubmit = (e) => {
         e.preventDefault();
-        let token = localStorage.getItem('TOKEN');
-        let options = {};
-        options.headers = { "Authorization": token };
-        let activits = this.state;
-        axios.post('/activities/addActivity', activits, options)
-            .then(res => {
-                debugger;
-                console.log(res.data)
-            })
-            .catch(err => { console.log(err) })
+        this.props.store.addActivity();
     }
 
     componentDidMount() {
-        let token = localStorage.getItem('TOKEN');
-        let options = {};
-        options.headers = { "Authorization": token };
-        axios.get('/activities', options)
-            .then(res => { console.log(res.data) })
-            .catch(err => { console.log(err) })
+        this.props.store.getActivities();
     }
 
     render() {
@@ -47,6 +32,10 @@ class ActivityForm extends Component {
                     Duration <input type="text" name="duration" placeholder="duration" onChange={this.handleChange} />
                     <button type="submit">Add</button>
                 </form>
+                <div>
+                    {/* {this.props.store.activities.map((item)=> <Activity {...item}/>)} */}
+                    {/* <Activity type="simple" price="14" duration="134" /> */}
+                </div>
             </div>
         )
     }
