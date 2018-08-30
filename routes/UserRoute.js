@@ -4,6 +4,7 @@ const Router = express.Router();
 const nodemailer = require('nodemailer');
 const Bussiness = require('../model/BussinesModel');
 const Client = require('../model/ClientsModel');
+const passport = require("passport");
 
 // if a user can login then we can send him a token
 Router.post('/login', (req, res) => {
@@ -16,7 +17,7 @@ Router.post('/login', (req, res) => {
                         if (!client) return res.json({ success: false, msg: "Invalid Username or Password" });
                         if (client.password === req.body.password) {
                             let token = jwt.sign({ id: client.id }, process.env.SECERT_KEY);
-                            return res.json({ success: true, user: 'Client', token: 'JWT ' + token })
+                            return res.json({ success: true, user: 'client', token: 'JWT ' + token })
                         } else {
                             return res.json({ success: false, msg: "Invalid Username or Password" });
                         }
@@ -28,7 +29,7 @@ Router.post('/login', (req, res) => {
                 if (isMatch && !err) {
                     // we creating the token
                     let token = jwt.sign({ id: user.id }, process.env.SECERT_KEY);
-                    return res.json({ success: true, user: 'Bussiness', token: 'JWT ' + token })
+                    return res.json({ success: true, user: 'business', token: 'JWT ' + token })
                 }
                 return res.json({ success: false, msg: "Invalid Username or Password" });
             })
@@ -41,11 +42,11 @@ Router.post('/login', (req, res) => {
 Router.post('/password/forgot', (req, res) => {
     req.check('email', 'Email is required').notEmpty();
     let errors = req.validationErrors();
-    errors = errors.reduce((arr, curr) => {
-        arr.push(curr.msg);
-        return arr;
-    }, [])
     if (errors) {
+        errors = errors.reduce((arr, curr) => {
+            arr.push(curr.msg);
+            return arr;
+        }, [])
         return res.status(400).send({ success: false, errors: errors });
     }
     Bussiness.findOne({ email: req.body.email })
@@ -93,6 +94,10 @@ Router.post('/password/reset/:token', (req, res) => {
     catch (err) {
         re.send({ success: false, msg: `Invalid or expired token` });
     }
+})
+
+Router.get('/automaticLogin', passport.authenticate("jwt", { session: false }), (req, res) => {
+    res.send({ success: true, msg: "successfuly logged in", user: req.user.constructor.modelName })
 })
 
 // send mail

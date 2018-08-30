@@ -14,6 +14,86 @@ Router.get('/', (req, res) => {
         .catch(err => res.send({ success: false, msg: `${err}` }));
 })
 
+Router.get('/setting', passport.authenticate("jwt", { session: false }), (req, res) => {
+    let info = {
+        name: req.user.name,
+        phone: req.user.phone,
+        email: req.user.email,
+        address: req.user.address,
+        category: req.user.category,
+        oldPassword: "",
+        password: "",
+        confirmPassword: ""
+    }
+    res.send({ success: true, info: info });
+})
+
+
+
+Router.post('/update', passport.authenticate("jwt", { session: false }), (req, res) => {
+    // check if body is valid
+    req.check('name', 'name is required').notEmpty();
+    req.check('phone', 'phone is not valid').isMobilePhone();
+    req.check('phone', 'phone is required').notEmpty();
+    req.check('category', 'category is required').notEmpty();
+    req.check('email', 'email is not valid').isEmail();
+    req.check('email', 'email is required').notEmpty();
+    req.check('address', 'address is required').notEmpty();
+    let errors = req.validationErrors();
+    if (errors) {
+        errors = errors.reduce((arr, curr) => {
+            arr.push(curr.msg);
+            return arr;
+        }, []);
+        return res.send({ success: false, errors: errors });
+    }
+
+    // save to database
+    req.user.name = req.body.name;
+    req.user.phone = req.body.phone;
+    req.user.email = req.body.email;
+    req.user.address = req.body.address;
+    req.user.category = req.body.category;
+
+    req.user.save()
+        .then(bussiness => res.json({ success: true, msg: "bussiness has been updated" }))
+        .catch(err => res.json({ success: false, msg: "please try again" }))
+});
+
+
+
+Router.post('/updatePassword', passport.authenticate("jwt", { session: false }), (req, res) => {
+    // check if body is valid
+    req.check('password', 'password is required').notEmpty();
+    req.check('oldPassword', 'old Password is required to change it').notEmpty();
+    req.checkBody('confirmPassword', `password don't match`).equals(req.body.password);
+    let errors = req.validationErrors();
+    if (errors) {
+        errors = errors.reduce((arr, curr) => {
+            arr.push(curr.msg);
+            return arr;
+        }, []);
+        return res.send({ success: false, errors: errors });
+    }
+
+    // check if old passport matches the saved password
+    req.user.comparePassword(req.body.oldPassword, function (err, match) {
+        if (!err && match) {
+            // save to database
+            req.user.password = req.body.password;
+            req.user.save()
+                .then(bussiness => res.json({ success: true, msg: "password has been updated" }))
+                .catch(err => res.json({ success: false, msg: "please try again" }))
+        } else {
+            res.send({ success: false, msg: "your old password doesnt match" });
+        }
+    })
+
+
+});
+
+
+
 Router.post('/register', (req, res) => {
     // check if body is valid
     req.check('name', 'name is required').notEmpty();
@@ -26,11 +106,11 @@ Router.post('/register', (req, res) => {
     req.checkBody('confirmPassword', "password don't match").equals(req.body.password);
     req.check('address', 'address is required').notEmpty();
     let errors = req.validationErrors();
-    errors = errors.reduce((arr, curr) => {
-        arr.push(curr.msg);
-        return arr;
-    }, []);
     if (errors) {
+        errors = errors.reduce((arr, curr) => {
+            arr.push(curr.msg);
+            return arr;
+        }, []);
         return res.send({ success: false, errors: errors });
     }
 
@@ -64,11 +144,13 @@ Router.post('/isExists', (req, res) => {
 
 
 Router.get('/clients', passport.authenticate('jwt', { session: false }), (req, res) => {
-    Bussiness.findOne({ _id: req.user.id }, { clients: 1, _id: -1 }).populate('clients').exec()
-        .then(b => {
-            res.send({ success: true, clients: b.clients })
-        })
-        .catch(err => res.send({ success: false, msg: `${err}` }));
+    // Bussiness.findOne({ _id: req.user.id }, { clients: 1, _id: -1 }).populate('clients').exec()
+    //     .then(b => {
+    //         res.send({ success: true, clients: b.clients })
+    //     })
+    //     .catch(err => res.send({ success: false, msg: `${err}` }));
+    res.send({ success: true, clients: req.user.clients })
+
 });
 
 // a simple test route to see if authentication works

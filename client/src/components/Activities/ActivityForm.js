@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import axios from 'axios'
 import { observer, inject } from 'mobx-react';
-import Activity from './Activity';
+import ActivityList from './ActivityList';
 
 @inject("store")
 @observer
@@ -33,8 +33,7 @@ class ActivityForm extends Component {
                     <button type="submit">Add</button>
                 </form>
                 <div>
-                    {/* {this.props.store.activities.map((item)=> <Activity {...item}/>)} */}
-                    {/* <Activity type="simple" price="14" duration="134" /> */}
+                    <ActivityList/>
                 </div>
             </div>
         )
