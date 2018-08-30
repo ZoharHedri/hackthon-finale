@@ -7,6 +7,7 @@ import Setting from '../Setting/Setting';
 import { inject, observer } from '../../../node_modules/mobx-react';
 import BussinessClients from '../BusinessClients/BussinessClients';
 import Redirect from 'react-router-dom/Redirect';
+import ActivityForm from '../Activities/ActivityForm';
 
 @inject("store")
 @observer
@@ -29,6 +30,7 @@ export class Bussiness extends Component {
                     </header>
                     <Route exact path="/business/dashboard" component={Dashboard} />
                     <Route exact path="/business/setting" component={Setting} />
+                    <Route excat path="/business/activites" component={ActivityForm} />
                     <Route excat path="/business/clients" component={BussinessClients} />
                 </div>
                 {!this.props.store.userStatus.loggedIn && <Redirect to={this.props.store.userStatus.userModel} />}

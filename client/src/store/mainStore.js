@@ -5,6 +5,8 @@ import axios from 'axios';
 class Store {
     @observable errors = [];
 
+    @observable activities = [];
+
     @observable registerBussinessForm = {
         name: "",
         phone: "",
@@ -16,6 +18,28 @@ class Store {
         address: ""
     }
 
+    @observable activityForm = {
+        type: "",
+        price: "",
+        duration: ""
+    }
+
+    @action setActivityForm = (obj)=>{
+        this.activityForm[obj.key] = obj.value;
+    }
+
+    @action addActivity = ()=>{
+        let token = localStorage.getItem('TOKEN');
+        let options = {};
+        options.headers = { "Authorization": token };
+        let activits = this.activityForm;
+        axios.post('/activities/addActivity', activits, options)
+            .then(res => {
+                console.log(res.data)
+            })
+            .catch(err => { console.log(err) })
+    }
+ 
     @observable loginForm = {
         email: "",
         password: ""
@@ -227,6 +251,19 @@ class Store {
         axios.post('/users/password/reset/' + token, { password: this.resetPasswordForm.password })
             .then(res => console.log(res.data))
             .catch(err => console.log(`${err}`));
+    }
+
+    @action getActivities = () => {
+        let token = localStorage.getItem('TOKEN');
+        let options = {};
+        options.headers = { "Authorization": token };
+        let current = this;
+        axios.get('/activities', options)
+            .then(res => {
+                current.activities = res.data.activites
+                console.log(res.data)
+            })
+            .catch(err => { console.log(err) })
     }
 
     _addError = (message) => {

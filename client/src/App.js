@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { BrowserRouter, Route, Redirect } from 'react-router-dom';
 import BussinessRegister from './components/BussinessRegister/BussinessRegister';
 import Login from './components/Login/Login';
+import ActivityForm from './components/Activities/ActivityForm';
 import ForgotPassword from './components/ForgotPassword/ForgotPassword';
 import ResetPassword from './components/ResetPassword/ResetPassword';
 import AddClient from './components/BusinessClients/AddClient';
