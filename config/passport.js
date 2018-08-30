@@ -15,7 +15,17 @@ module.exports = function (passport) {
 
     // we use the passport and set its sttrategy to jwt
     passport.use(new JwtStrategy(opts, function (jwt_payload, done) {
-        Bussiness.findOne({ _id: jwt_payload.id }).populate('workingDays clients activites').exec()
+        //https://stackoverflow.com/questions/24414975/mongoose-populate-sub-sub-document
+        Bussiness.findOne({ _id: jwt_payload.id }).populate({
+              path: 'workingDays clients activites' ,
+              populate: {
+                  path: 'events',
+                  populate: {
+                     path: 'activityId',
+                     model: 'activity'
+                  }
+               }
+            }).exec()
             .then(bussiness => {
                 if (bussiness) {
                     return done(null, bussiness);
