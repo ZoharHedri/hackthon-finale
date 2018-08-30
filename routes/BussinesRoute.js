@@ -158,5 +158,26 @@ Router.post('/test', passport.authenticate('jwt', { session: false }), (req, res
     res.json({ success: true, msg: "it worked" });
 })
 
+Router.get('/search/:search',(req,res) => {
+    let search = req.params.search;
+    let exp = new RegExp(search,'i');    
+    Bussiness.find({})
+    .then(business => {
+        if(business.length===0){
+            res.send({success:true,filter:business})
+        }
+        else{
+            let filter = business.filter(
+                item => {
+                    return exp.test(item.name);
+                }
+            )
+            res.send({success:true, filter:filter});
+        }
+
+    })
+
+} )
+
 
 module.exports = Router;

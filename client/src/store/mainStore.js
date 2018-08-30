@@ -101,7 +101,7 @@ class Store {
 
     @observable message = null;
 
-    @observable businesses = [];
+    @observable business = [];
 
     @action isExists = (user) => {
         if (user === "bussiness") {
@@ -240,8 +240,8 @@ class Store {
         this.errors.length = 0;
     }
 
-    @action updateBusinessArr(arr){
-        this.business = arr;
+    @action updateBusinessArr(filter){
+        this.business = filter;
     }
 }
 

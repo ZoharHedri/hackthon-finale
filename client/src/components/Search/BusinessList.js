@@ -1,10 +1,14 @@
 import React, { Component } from 'react'
+import { observer, inject } from 'mobx-react';
 
-export class BusinessList extends Component {
+
+@observer
+@inject("store")
+class BusinessList extends Component {
   render() {
     return (
       <div>
-        
+        {this.props.store.business.map((item) => <div>123</div>)}
       </div>
     )
   }
