@@ -277,9 +277,157 @@ class Store {
         this.errors.length = 0;
     }
 
+
+
+
+    @observable bussinessCalendar = {
+        startPeriod: Date,
+        endPeriod: Date,
+        workDays: [
+            { day: "weekday-sun", flag: false, statrTime: '', endTime: '' },
+            { day: "weekday-mon", flag: false, statrTime: '', endTime: '' },
+            { day: "weekday-tue", flag: false, statrTime: '', endTime: '' },
+            { day: "weekday-wed", flag: false, statrTime: '', endTime: '' },
+            { day: "weekday-thu", flag: false, statrTime: '', endTime: '' },
+            { day: "weekday-fri", flag: false, statrTime: '', endTime: '' },
+            { day: "weekday-sat", flag: false, statrTime: '', endTime: '' },
+        ]
+    }
+
+    @action setBussinessCalendar = (obj) => {
+        this.bussinessCalendar[obj.key] = obj.value;
+
+        console.log('setBussinessCalendar chaged..');
+    }
+
+
+    @action setBussinessCalendarDay = (dayName) => {
+        let findDay = this.bussinessCalendar.workDays.find(item => dayName === item.day);
+        findDay.flag = !findDay.flag;
+
+    }
+
+
+    @action setBussinessCalendarDayTime = (obj) => {
+        // let findDay = this.bussinessCalendar.workDays.find(item => dayName === item.day);
+        this.bussinessCalendar.workDays[0][obj.key] = obj.value;
+
+        console.log('setBussinessCalendarDayTime chaged..');
+    }
+
+
+
+    @action setBussinessCalendarWorkDays = (periodWorkDays) => {
+
+        let token = localStorage.getItem('TOKEN');
+        let opts = {}
+        opts.headers = { Authorization: token }
+        axios.post('/bussiness/calendar/', periodWorkDays, opts)
+            .then(res => console.log(res.data))
+            .catch(err => console.log(err.msg));
+    }
+
+    @observable events = this._getBussinessEvents();
+
+    _getBussinessEvents() {
+        let myEventsList = [
+            {
+                id: 0,
+                title: 'All Day Event very long title',
+                allDay: true,
+                start: new Date(2018, 8, 0),
+                end: new Date(2018, 8, 1),
+            },
+            {
+                id: 5,
+                title: 'Conference',
+                start: new Date(2015, 3, 11),
+                end: new Date(2015, 3, 13),
+                desc: 'Big conference for important people',
+            },
+            {
+                id: 6,
+                title: 'Meeting',
+                start: new Date(2015, 3, 12, 10, 30, 0, 0),
+                end: new Date(2015, 3, 12, 12, 30, 0, 0),
+                desc: 'Pre-meeting meeting, to prepare for the meeting',
+            },
+            {
+                id: 7,
+                title: 'Lunch',
+                start: new Date(2015, 3, 12, 12, 0, 0, 0),
+                end: new Date(2015, 3, 12, 13, 0, 0, 0),
+                desc: 'Power lunch',
+            },
+            {
+                id: 8,
+                title: 'Meeting',
+                start: new Date(2015, 3, 12, 14, 0, 0, 0),
+                end: new Date(2015, 3, 12, 15, 0, 0, 0),
+            },
+            {
+                id: 9,
+                title: 'Happy Hour',
+                start: new Date(2015, 3, 12, 17, 0, 0, 0),
+                end: new Date(2015, 3, 12, 17, 30, 0, 0),
+                desc: 'Most important meal of the day',
+            },
+            {
+                id: 10,
+                title: 'Dinner',
+                start: new Date(2015, 3, 12, 20, 0, 0, 0),
+                end: new Date(2015, 3, 12, 21, 0, 0, 0),
+            },
+            {
+                id: 11,
+                title: 'Birthday Party',
+                start: new Date(2015, 3, 13, 7, 0, 0),
+                end: new Date(2015, 3, 13, 10, 30, 0),
+            },
+            {
+                id: 12,
+                title: 'Late Night Event',
+                start: new Date(2015, 3, 17, 19, 30, 0),
+                end: new Date(2015, 3, 18, 2, 0, 0),
+            },
+            {
+                id: 12.5,
+                title: 'Late Same Night Event',
+                start: new Date(2015, 3, 17, 19, 30, 0),
+                end: new Date(2015, 3, 17, 23, 30, 0),
+            },
+            {
+                id: 13,
+                title: 'Multi-day Event',
+                start: new Date(2015, 3, 20, 19, 30, 0),
+                end: new Date(2015, 3, 22, 2, 0, 0),
+            },
+            {
+                id: 14,
+                title: 'Today',
+                start: new Date(new Date().setHours(new Date().getHours() - 3)),
+                end: new Date(new Date().setHours(new Date().getHours() + 3)),
+            },
+        ]
+        
+        let events = [];
+        let token = localStorage.getItem('TOKEN');
+        let opts = {}
+        opts.headers = { Authorization: token }
+        axios.get('/bussiness/calendar', opts)
+            .then(res => console.log(res.data))
+            .catch(err => console.log(err.msg));
+
+            
+
+            return myEventsList;    
+    }
+
+
     @action updateBusinessArr(filter){
         this.business = filter;
     }
+
 }
 
 // initialize our store

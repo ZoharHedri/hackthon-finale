@@ -1,5 +1,8 @@
 import React, { Component } from 'react';
+// import BussinessRegister from './components/BussinessRegister/BussinessRegister';
+import BussinessCalendar from './components/BussinessCalendar/BussinessCalendar';
 import { BrowserRouter, Route, Redirect } from 'react-router-dom';
+
 import BussinessRegister from './components/BussinessRegister/BussinessRegister';
 import Login from './components/Login/Login';
 import ActivityForm from './components/Activities/ActivityForm';
@@ -22,6 +25,8 @@ class App extends Component {
           {/* <Dashboard/> */}
           {/* TODO: here we define our routes */}
 
+        
+          <Route exact path="/" component={BussinessCalendar} />
           <Route exact path="/" component={Login} />
           <Route path="/business" render={(props) => (
             this.props.store.userStatus.loggedIn ? <Bussiness {...props} /> : <Redirect to="/" />

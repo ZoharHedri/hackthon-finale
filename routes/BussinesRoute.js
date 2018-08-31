@@ -2,6 +2,7 @@ const express = require('express');
 const Router = express.Router();
 const Bussiness = require('../model/BussinesModel');
 const Client = require('../model/ClientsModel');
+const WorkDay = require('../model/WorkDayModel');
 const jwt = require('jsonwebtoken');
 const passport = require('passport');
 const nodemailer = require('nodemailer');
@@ -142,6 +143,38 @@ Router.post('/isExists', (req, res) => {
         .catch(err => { throw err; })
 })
 
+Router.post('/calendar', passport.authenticate('jwt', { session: false }), (req, res) => {
+    let promises = [];
+
+    for (let i = 0; i < req.body.length; i++) {
+        // console.log(req.body[i].date);
+        let day = new WorkDay({
+            date: req.body[i].date,
+            timeDuration: {
+                timeStart: req.body[i].timeStart,
+                timeEnd: req.body[i].timeEnd
+            }
+        })
+        let promise = day.save()
+        promises.push(promise);
+    }
+
+    Promise.all(promises).then(values => {
+        let ids = values.map(item => item._id);
+        req.user.workingDays = req.user.workingDays.concat(ids);
+        req.user.save()
+            .then(bussiness => res.send({ success: true, msg: "your wark days has been saved." }))
+            .catch(err => res.send({ success: false, msg: "Somtehing went wrong, plesae try again" }))
+
+    })
+});
+
+Router.get('/calendar', passport.authenticate('jwt', { session: false }), (req, res) => {
+     let events = req.user.workingDays.reduce(function(accumulator, currentValue) {
+        return [...accumulator, ...currentValue.events];
+      },[{}]);
+     res.send({ success: true, events: events })
+});
 
 Router.get('/clients', passport.authenticate('jwt', { session: false }), (req, res) => {
     // Bussiness.findOne({ _id: req.user.id }, { clients: 1, _id: -1 }).populate('clients').exec()

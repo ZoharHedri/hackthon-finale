@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+let Activty = require('../model/ActivtyModel');
 
 const EventSchema = new Schema({
     activityId: { type: Schema.Types.ObjectId, ref: 'activty' },
