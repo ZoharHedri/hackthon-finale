@@ -9,6 +9,9 @@ const Grid = require('gridfs-stream');
 const crypto = require('crypto')
 const mongoose = require('mongoose');
 
+
+
+
 // loading configuration setting this run on the machine
 require('dotenv').config({ path: path.join(__dirname, 'config', '.env') });
 
@@ -20,7 +23,6 @@ conn.once('open', function () {
     gfs = Grid(conn.db, mongoose.mongo);
     gfs.collection('uploads');
 })
-
 
 let storage = new GridFsStorage({
     url: `mongodb://${process.env.DB_USER}:${process.env.DB_PASS}@ds125862.mlab.com:25862/hackton_db`,
@@ -43,9 +45,9 @@ let storage = new GridFsStorage({
 
 let upload = multer({ storage: storage });
 
-
 const UserRoute = require('./routes/UserRoute');
 const BusinessRoute = require('./routes/BussinesRoute');
+const ActivitiesRoute = require('./routes/ActivitiesRoute');
 const ClientsRoute = require('./routes/ClientsRoute');
 const DashboardRoute = require('./routes/DashboardRoute');
 
@@ -61,15 +63,16 @@ app.use(expressValidator());
 // intialize passport
 app.use(passport.initialize());
 
-
 // setting up passport to use the jwt strategy
 require('./config/passport')(passport);
 
-// TODO: need to add some routes in routes folder
 app.use('/users', UserRoute);
 app.use('/bussiness', BusinessRoute);
 app.use('/clients', upload.single('avatar'), ClientsRoute);
+app.use('/activities', ActivitiesRoute);
 app.use('/dashboard', DashboardRoute);
+
+// this route is for getting images stored in the database
 app.get('/images/:filename', (req, res) => {
     gfs.files.findOne({ filename: req.params.filename }, (function (err, file) {
         if (err) return res.json({ err: "something happend" })
@@ -77,7 +80,6 @@ app.get('/images/:filename', (req, res) => {
         readstream.pipe(res);
     }))
 })
-
 
 const PORT = process.env.PORT || 8000;
 app.listen(PORT, console.log(`Server running on port ${PORT}`));

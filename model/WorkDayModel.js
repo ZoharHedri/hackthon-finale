@@ -11,7 +11,7 @@ const WorkDaySchema = new Schema({
     timeDuration: TimeDuration,
     date: Date,
     breaking: [],
-    events: []
+    events: [{type: Schema.Types.ObjectId, ref:'event'}] //not working
 });
 
 module.exports = conn.model('workDay', WorkDaySchema);

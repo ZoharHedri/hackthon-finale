@@ -5,6 +5,8 @@ import axios from 'axios';
 class Store {
     @observable errors = [];
 
+    @observable activities = [];
+
     @observable registerBussinessForm = {
         name: "",
         phone: "",
@@ -14,6 +16,12 @@ class Store {
         password: "",
         confirmPassword: "",
         address: ""
+    }
+
+    @observable activityForm = {
+        type: "",
+        price: "",
+        duration: ""
     }
 
     @observable loginForm = {
@@ -42,6 +50,56 @@ class Store {
         loggedIn: false,
         userModel: ""
     }
+
+    @observable clients = [];
+    @observable clientEvents = [];
+
+    @observable message = null;
+
+    @observable business = [];
+
+    @action setActivityForm = (obj) => {
+        this.activityForm[obj.key] = obj.value;
+    }
+
+    @action addActivity = () => {
+        let token = localStorage.getItem('TOKEN');
+        let options = {};
+        options.headers = { "Authorization": token };
+        let activits = this.activityForm;
+        axios.post('/activities/addActivity', activits, options)
+            .then(res => {
+                console.log(res.data)
+            })
+            .catch(err => { console.log(err) })
+    }
+
+    @action getClientEvents = () => {
+        let token = localStorage.getItem('TOKEN');
+        let options = {};
+        options.headers = { "Authorization": token };
+        axios.get('/clients/events', options)
+            .then(res => {
+                this.clientEvents = res.data.events;
+            })
+            .catch(err => console.log(err))
+    }
+
+    @action removeEventById = (eventId) => {
+        let token = localStorage.getItem('TOKEN');
+        let options = {};
+        options.headers = { "Authorization": token };
+        axios.delete(`/clients/event/${eventId}`, options)
+            .then(res => {
+                if (res.data.success) {
+                    this.getClientEvents();
+                }
+            })
+            .catch(err => console.log(err));
+    }
+
+
+
 
     @computed get getSetting() {
         return this.registerBussinessForm;
@@ -76,7 +134,7 @@ class Store {
                     if (res.data.success) {
                         let user = {
                             loggedIn: true,
-                            userModel: res.data.user + "/dashboard"
+                            userModel: res.data.user === 'business' ? res.data.user + "/dashboard" : res.data.user + '/search'
                         }
                         current.userStatus = user;
                     }
@@ -97,9 +155,7 @@ class Store {
         this.forgotPasswordForm[obj.key] = obj.value;
     }
 
-    @observable clients = [];
 
-    @observable message = null;
 
     @action isExists = (user) => {
         if (user === "bussiness") {
@@ -152,9 +208,7 @@ class Store {
             fd.append(key, this.registerClientForm[key])
         }
         let opts = {};
-        opts.headers = {
-            contentType: "multipart/form-data"
-        }
+        opts.headers = { contentType: "multipart/form-data" };
         axios.post('/clients/register', fd, opts)
             .then(res => {
                 if (res.data.success) {
@@ -175,7 +229,7 @@ class Store {
                     localStorage.setItem('TOKEN', res.data.token);
                     let user = {
                         loggedIn: true,
-                        userModel: res.data.user + "/dashboard"
+                        userModel: res.data.user === 'business' ? res.data.user + "/dashboard" : res.data.user + '/search'
                     }
                     this.userStatus = user;
                     this._clearErrors();
@@ -208,6 +262,7 @@ class Store {
     }
 
     @action logout = () => {
+        localStorage.removeItem("TOKEN");
         let user = {
             loggedIn: false,
             userModel: ""
@@ -237,6 +292,19 @@ class Store {
             .catch(err => console.log(`${err}`));
     }
 
+    @action getActivities = () => {
+        let token = localStorage.getItem('TOKEN');
+        let options = {};
+        options.headers = { "Authorization": token };
+        let current = this;
+        axios.get('/activities', options)
+            .then(res => {
+                current.activities = res.data.activites
+                console.log(res.data)
+            })
+            .catch(err => { console.log(err) })
+    }
+
     _addError = (message) => {
         if (!this.errors.find(err => err === message)) {
             this.errors.push(message);
@@ -244,6 +312,10 @@ class Store {
     }
     _clearErrors = () => {
         this.errors.length = 0;
+    }
+
+    @action updateBusinessArr = (filter) => {
+        this.business = filter;
     }
 }
 

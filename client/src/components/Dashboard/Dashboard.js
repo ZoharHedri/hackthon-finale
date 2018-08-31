@@ -2,39 +2,64 @@
 
 import React, { Component } from 'react';
 import axios from 'axios';
+//import library of time named 'moment' =>https://momentjs.com ,https://momentjs.com/docs/#/displaying/
+import moment from 'moment';
 
-//const not function
+
+//'const' not 'function'!,
 const Details = (props) => {
-    let time = new Date();
-    let currentTime = `${time.getDate()}/${time.getDay() + 1}/${time.getFullYear()}`;
+    
+    //console.log(moment().format('dddd'));//day name
+    // console.log(moment().format('M/D/Y'));//the day,month and year
+    let currentTime = moment().format('M/D/Y');
+
+    const detailsOfUser = props.detailsUser; //the 'detailsOfUser' is object! not array
+    // debugger;
     return (
-        <div>
-            <h1>Details</h1>
-            {currentTime}
+        <div className="business-details">
+            <h1 className="business-h">Details Bussiness</h1>
+            <p className="business-time">{currentTime}</p>
+            <div> 
+                {/* key={detailsOfUser.id} */}
+                <h1 className="business-name">{detailsOfUser.name}</h1>
+                <h3 className="business-address">{detailsOfUser.address}</h3><br/>
+                <p className="business-category">{detailsOfUser.category}</p><br/>
+                <p className="business-phoneAanEmail">{detailsOfUser.phone} {detailsOfUser.email}</p>
+            </div>
         </div>
     );
 }
 
 const TodayActivities = (props) => {
+    
+    debugger;
+    const actDetails  = props; //actDetails = object (with '.__proto__' func) 
+    console.log(actDetails); 
+    // console.log(Object.keys(actDetails)); 
     return (
-        <div>
-            TodayActivities
-            </div>
+        <div className="today-activities">
+            <h1 className="today-h">TodayActivities</h1>
+            {actDetails.date}
+            {actDetails._id}
+            {/* {actDetails.map((item) => 
+            <div key={item.id}>{item.date} </div> 
+             )}  */}
+        </div>
     );
 }
 
 const Statistic = (props) => {
     return (
-        <div>
+        <div className="business-statistic">
             Statistic
-            </div>
+        </div>
     );
 
 }
 
 class Dashboard extends Component {
 
-    user = [];
+    state = {user : [] };
     componentDidMount = () => {
         //ajax call with axios,and TOKEN
         let token = localStorage.getItem('TOKEN');
@@ -42,18 +67,20 @@ class Dashboard extends Component {
         dashToken.headers = { Authorization: token }
         axios.get("/dashboard", dashToken)
             .then(res => {
-                this.user = res.data.details;
-                console.log(res.data.success);
+                this.setState({user: res.data.details}); 
+                // debugger;
+                console.log(res.data.success); //good
             })
-            .catch(err => console.error(`${err}-err mesage`));
+            .catch(err => console.error(`${err} - ERR mesage`));
     }
 
     render() {
         return (
-            <div>
-                <Details detailsUser={this.user} />
+            <div className="business-dashboard">
+                <Details detailsUser={this.state.user} />
                 <hr />
-                <TodayActivities />
+                {/*activites={this.state.user.activites} */}
+                 <TodayActivities workingDays={this.state.user.workingDays}/>
                 <hr />
                 <Statistic />
 

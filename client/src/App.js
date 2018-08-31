@@ -7,8 +7,7 @@ import ResetPassword from './components/ResetPassword/ResetPassword';
 import AddClient from './components/BusinessClients/AddClient';
 import Bussiness from './components/Bussiness/Bussiness';
 import { inject, observer } from '../node_modules/mobx-react';
-
-// import Dashboard from './components/Dashboard/Dashboard';
+import Client from './components/Client/Client';
 
 @inject("store")
 @observer
@@ -17,24 +16,22 @@ class App extends Component {
     return (
       <BrowserRouter>
         <div>
-          {/* <Dashboard/> */}
-          {/* TODO: here we define our routes */}
 
           <Route exact path="/" component={Login} />
           <Route path="/business" render={(props) => (
             this.props.store.userStatus.loggedIn ? <Bussiness {...props} /> : <Redirect to="/" />
           )} />
+          <Route path="/client" render={(props) => (
+            this.props.store.userStatus.loggedIn ? <Client {...props} /> : <Redirect to="/" />
+          )} />
           <Route exact path="/password/forgot" component={ForgotPassword} />
           <Route exact path="/password/reset/:token" component={ResetPassword} />
-          <Route exact path="/bussiness/register" component={BussinessRegister} />
-          <Route exact path="/client/register" component={AddClient} />
+          <Route exact path="/register/bussiness" component={BussinessRegister} />
+          <Route exact path="/register/client" component={AddClient} />
 
-          {/* <Route path="/business" component={Bussiness} /> */}
-          {/* <ResetPassword />
-          <BussinessRegister />
-          <Route exact path="/reset-password/:token" component={ResetPassword} /> */}
         </div>
       </BrowserRouter>
+
     );
   }
 }

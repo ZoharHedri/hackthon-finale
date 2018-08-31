@@ -5,6 +5,7 @@ const Client = require('../model/ClientsModel');
 const jwt = require('jsonwebtoken');
 const passport = require('passport');
 const nodemailer = require('nodemailer');
+const moment = require('moment');
 
 Router.get('/', (req, res) => {
     Bussiness.find({})
@@ -144,11 +145,6 @@ Router.post('/isExists', (req, res) => {
 
 
 Router.get('/clients', passport.authenticate('jwt', { session: false }), (req, res) => {
-    // Bussiness.findOne({ _id: req.user.id }, { clients: 1, _id: -1 }).populate('clients').exec()
-    //     .then(b => {
-    //         res.send({ success: true, clients: b.clients })
-    //     })
-    //     .catch(err => res.send({ success: false, msg: `${err}` }));
     res.send({ success: true, clients: req.user.clients })
 
 });
@@ -156,6 +152,35 @@ Router.get('/clients', passport.authenticate('jwt', { session: false }), (req, r
 // a simple test route to see if authentication works
 Router.post('/test', passport.authenticate('jwt', { session: false }), (req, res) => {
     res.json({ success: true, msg: "it worked" });
+})
+
+Router.get('/search/:search', (req, res) => {
+    let search = req.params.search;
+    let exp = new RegExp(search, 'i');
+    Bussiness.find({}).populate('workingDays')
+        .then(business => {
+            if (business.length === 0) {
+                res.send({ success: true, filter: business })
+            }
+            else {
+                let filter = business.filter(
+                    item => {
+                        return exp.test(item.name);
+                    }
+                )
+                filter.forEach(item => {
+                    item.workingDays.filter(days => {
+                        let moment1 = moment(days.date);
+                        let moment2 = moment(Date.now());
+                        return moment2.diff(moment1, 'days') <= 0;
+                    })
+                })
+
+                res.send({ success: true, filter: filter });
+            }
+
+        })
+
 })
 
 
