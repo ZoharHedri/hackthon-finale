@@ -5,16 +5,41 @@ import axios from 'axios';
 class Store {
     @observable errors = [];
 
+    @observable activities = [];
+
     @observable registerBussinessForm = {
         name: "",
         phone: "",
         category: "",
         email: "",
+        oldPassword: "",
         password: "",
         confirmPassword: "",
         address: ""
     }
 
+    @observable activityForm = {
+        type: "",
+        price: "",
+        duration: ""
+    }
+
+    @action setActivityForm = (obj)=>{
+        this.activityForm[obj.key] = obj.value;
+    }
+
+    @action addActivity = ()=>{
+        let token = localStorage.getItem('TOKEN');
+        let options = {};
+        options.headers = { "Authorization": token };
+        let activits = this.activityForm;
+        axios.post('/activities/addActivity', activits, options)
+            .then(res => {
+                console.log(res.data)
+            })
+            .catch(err => { console.log(err) })
+    }
+ 
     @observable loginForm = {
         email: "",
         password: ""
@@ -37,6 +62,57 @@ class Store {
         passwordConfirm: ""
     }
 
+    @observable userStatus = {
+        loggedIn: false,
+        userModel: ""
+    }
+
+    @computed get getSetting() {
+        return this.registerBussinessForm;
+    }
+
+    @action getSettingApi = () => {
+        let token = localStorage.getItem("TOKEN");
+        let opts = {};
+        opts.headers = { Authorization: token };
+        axios.get('/bussiness/setting', opts)
+            .then(res => {
+                this.registerBussinessForm = res.data.info;
+            })
+            .catch(err => console.log(err));
+    }
+
+    @action _setErrors = (errors) => {
+        debugger;
+        this.errors = errors;
+    }
+
+
+
+    @action automaticLogin = () => {
+        let token = localStorage.getItem("TOKEN");
+        if (token) {
+            let opts = {};
+            opts.headers = { Authorization: token };
+            let current = this;
+            axios.get('/users/automaticLogin', opts)
+                .then(res => {
+                    if (res.data.success) {
+                        let user = {
+                            loggedIn: true,
+                            userModel: res.data.user + "/dashboard"
+                        }
+                        current.userStatus = user;
+                    }
+                })
+                .catch(err => {
+                    current.userStatus.loggedIn = false;
+                    console.log(err);
+                });
+        }
+    }
+
+
     @action setResetPasswordForm = (obj) => {
         this.resetPasswordForm[obj.key] = obj.value;
     }
@@ -49,8 +125,10 @@ class Store {
 
     @observable message = null;
 
+    @observable business = [];
+
     @action isExists = (user) => {
-        if (user === "Bussiness") {
+        if (user === "bussiness") {
             if (this.registerBussinessForm.email === "") {
                 this.message = null;
                 return;
@@ -94,6 +172,18 @@ class Store {
             .catch(err => console.log(err.msg));
     }
 
+    @action registerClient = () => {
+        axios.post('/clients/register', this.registerClientForm)
+            .then(res => {
+                if (res.data.success) {
+                    console.log(res.data)
+                } else {
+                    this.errors = res.data.errors;
+                }
+            })
+            .catch(err => console.log(err.msg));
+    }
+
     //login to a database using email - BUSSINESS or CLIENT return
     @action login = () => {
         axios.post('/users/login', this.loginForm)
@@ -101,8 +191,14 @@ class Store {
                 if (res.data.success) {
                     // we saved the token from the server in localstorage
                     localStorage.setItem('TOKEN', res.data.token);
+                    let user = {
+                        loggedIn: true,
+                        userModel: res.data.user + "/dashboard"
+                    }
+                    this.userStatus = user;
                     this._clearErrors();
                 } else {
+                    this.loggedIn = false;
                     this._addError(res.data.msg);
                 }
             })
@@ -118,6 +214,7 @@ class Store {
         let token = localStorage.getItem('TOKEN');
         let opts = {}
         opts.headers = { Authorization: token }
+        //go to '/bussiness' -> Router.get('/clients'...)
         axios.get('/bussiness/clients', opts)
             .then(res => {
                 this.clients = res.data.clients;
@@ -126,6 +223,18 @@ class Store {
             .catch(err => {
                 this._addError(err.msg);
             });
+    }
+
+    @action logout = () => {
+        let user = {
+            loggedIn: false,
+            userModel: ""
+        }
+        this.userStatus = user;
+    }
+
+    @action _clearMessage = () => {
+        this.message = "";
     }
 
     @action forgot = () => {
@@ -146,6 +255,19 @@ class Store {
             .catch(err => console.log(`${err}`));
     }
 
+    @action getActivities = () => {
+        let token = localStorage.getItem('TOKEN');
+        let options = {};
+        options.headers = { "Authorization": token };
+        let current = this;
+        axios.get('/activities', options)
+            .then(res => {
+                current.activities = res.data.activites
+                console.log(res.data)
+            })
+            .catch(err => { console.log(err) })
+    }
+
     _addError = (message) => {
         if (!this.errors.find(err => err === message)) {
             this.errors.push(message);
@@ -154,6 +276,7 @@ class Store {
     _clearErrors = () => {
         this.errors.length = 0;
     }
+
 
 
 
@@ -298,6 +421,11 @@ class Store {
             
 
             return myEventsList;    
+    }
+
+
+    @action updateBusinessArr(filter){
+        this.business = filter;
     }
 
 }

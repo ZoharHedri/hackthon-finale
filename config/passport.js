@@ -25,6 +25,17 @@ module.exports = function (passport) {
                 }
             }
         }).exec()
+        //https://stackoverflow.com/questions/24414975/mongoose-populate-sub-sub-document
+        Bussiness.findOne({ _id: jwt_payload.id }).populate({
+              path: 'workingDays clients activites' ,
+              populate: {
+                  path: 'events',
+                  populate: {
+                     path: 'activityId',
+                     model: 'activity'
+                  }
+               }
+            }).exec()
             .then(bussiness => {
                 if (bussiness) {
                     return done(null, bussiness);

@@ -10,7 +10,7 @@ const WorkDaySchema = new Schema({
     timeDuration: TimeDuration,
     date: Date,
     breaking: [],
-    events: [{ type: Schema.Types.ObjectId, ref: 'event' }]
+    events: [{type: Schema.Types.ObjectId, ref:'event'}] //not working
 });
 
 module.exports = mongoose.model('workDay', WorkDaySchema);

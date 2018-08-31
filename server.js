@@ -6,7 +6,10 @@ const passport = require('passport');
 const expressValidator = require('express-validator');
 const UserRoute = require('./routes/UserRoute');
 const BusinessRoute = require('./routes/BussinesRoute');
+const ActivitiesRoute = require('./routes/ActivitiesRoute');
 const ClientsRoute = require('./routes/ClientsRoute');
+//
+const DashboardRoute = require('./routes/DashboardRoute');
 
 // loading configuration setting this run on the machine
 require('dotenv').config({ path: path.join(__dirname, 'config', '.env') });
@@ -41,7 +44,9 @@ require('./config/passport')(passport);
 // TODO: need to add some routes in routes folder
 app.use('/users', UserRoute);
 app.use('/bussiness', BusinessRoute);
+app.use('/activities', ActivitiesRoute);
 app.use('/clients', ClientsRoute);
+app.use('/dashboard' ,DashboardRoute);
 // TODO: jwt token for handling user authentication
 // TODO: nodemalier for sending email
 

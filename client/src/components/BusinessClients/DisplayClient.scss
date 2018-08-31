@@ -1,0 +1,26 @@
+.client{
+    display: flex;
+    position: relative;
+    padding: 16px 0;
+    background: white;
+    &:not(:last-child){
+        border-bottom:1px solid #eee;
+    }
+    &::before{
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 3px;
+        height: 100%;
+        background: #50CBCB;
+    }
+
+    &__value{
+        flex: 0 0 33.3333%;
+        color: #777;
+        &--ml{
+            padding-left: 16px;
+        }
+    }
+}
