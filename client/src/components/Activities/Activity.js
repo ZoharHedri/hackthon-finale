@@ -21,6 +21,10 @@ export default class Activity extends Component {
         console.log('Left editor with text: ' + text);
     }
 
+    onClick = ()=>{
+        this.props.store.removeActivity(this.props._id);
+    }
+
     // onChange = (data) => {
     //     console.log(data);
     // }
@@ -34,6 +38,7 @@ export default class Activity extends Component {
                     onFocusOut={this._handleFocusOut} />
                 <EditableLabel text={this.props.duration} onFocus={this._handleFocus}
                     onFocusOut={this._handleFocusOut} />
+                    <button onClick={this.onClick}>Remove</button>
             </div>
         )
     }

@@ -1,4 +1,4 @@
-import { observable, action, computed } from 'mobx';
+import { observable, action, computed, remove } from 'mobx';
 import axios from 'axios';
 import moment from 'moment';
 // TODO: here we will handle all of our states
@@ -68,6 +68,15 @@ class Store {
             startingTime: "",
         },
         status: ""
+    }
+
+    @action removeActivity = (activity_id) => {
+        let token = localStorage.getItem('TOKEN');
+        let options = {};
+        options.headers = { "Authorization": token };
+        axios.delete(`/activities/delete/${activity_id}`, options)
+            .then(res => console.log(res))
+            .catch(err => console.log(err))
     }
 
     @action setCientEventForm = (obj) => {
