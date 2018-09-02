@@ -10,7 +10,7 @@ export default class ActivityList extends Component {
     render() {
         return (
             <div>
-                {this.props.store.activities.map((item,index) => <Activity {...item} key={index}/>)}
+                {this.props.store.activities.map((item, index) => <Activity {...item} key={index} />)}
             </div>
         )
     }

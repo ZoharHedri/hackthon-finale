@@ -1,14 +1,10 @@
 import React, { Component } from 'react'
-import axios from 'axios'
 import { observer, inject } from 'mobx-react';
 import ActivityList from './ActivityList';
 
 @inject("store")
 @observer
 class ActivityForm extends Component {
-    constructor() {
-        super();
-    }
 
     handleChange = (e) => {
         this.props.store.setActivityForm({ key: e.target.name, value: e.target.value })
@@ -33,7 +29,7 @@ class ActivityForm extends Component {
                     <button type="submit">Add</button>
                 </form>
                 <div>
-                    <ActivityList/>
+                    <ActivityList />
                 </div>
             </div>
         )

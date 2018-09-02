@@ -48,7 +48,7 @@ class Login extends Component {
                         <button className="login__btn" type="submit">Login</button>
                         <Link className="login__forgot" to="/password/forgot">Forgot your password?</Link>
                     </form>
-                    <span className="login__account">Create an account for <Link className="login__path" to="/bussiness/register">bussiness</Link> / <Link className="login__path login__path--red" to="/client/register">client</Link></span>
+                    <span className="login__account">Create an account for <Link className="login__path" to="/register/bussiness">bussiness</Link> / <Link className="login__path login__path--red" to="/register/client">client</Link></span>
                 </div>
                 {this.props.store.userStatus.loggedIn && <Redirect to={this.props.store.userStatus.userModel} />}
             </div>

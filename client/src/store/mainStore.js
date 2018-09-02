@@ -1,6 +1,6 @@
 import { observable, action, computed } from 'mobx';
 import axios from 'axios';
-
+import moment from 'moment';
 // TODO: here we will handle all of our states
 class Store {
     @observable errors = [];
@@ -24,22 +24,6 @@ class Store {
         duration: ""
     }
 
-    @action setActivityForm = (obj)=>{
-        this.activityForm[obj.key] = obj.value;
-    }
-
-    @action addActivity = ()=>{
-        let token = localStorage.getItem('TOKEN');
-        let options = {};
-        options.headers = { "Authorization": token };
-        let activits = this.activityForm;
-        axios.post('/activities/addActivity', activits, options)
-            .then(res => {
-                console.log(res.data)
-            })
-            .catch(err => { console.log(err) })
-    }
- 
     @observable loginForm = {
         email: "",
         password: ""
@@ -66,6 +50,94 @@ class Store {
         loggedIn: false,
         userModel: ""
     }
+
+    @observable clients = [];
+    @observable clientEvents = [];
+
+    @observable message = null;
+
+    @observable business = [];
+
+    @observable events = [];
+
+
+    @observable clientEventForm = {
+        activityId: "",
+        timeDate: {
+            date: "",
+            startingTime: "",
+        },
+        status: ""
+    }
+
+    @action setCientEventForm = (obj) => {
+        if (obj.key) {
+            this.clientEventForm[obj.key] = obj.value;
+        } else {
+            let setTimeDate = {
+                date: obj.date,
+                startingTime: obj.startingTime
+            }
+            this.clientEventForm["timeDate"] = setTimeDate;
+        }
+    }
+
+    @action saveEventForClient(bussinessId, workingDayId) {
+        let token = localStorage.getItem('TOKEN');
+        let options = {};
+        options.headers = { "Authorization": token };
+        axios.post(`/clients/events/add/${bussinessId}/${workingDayId}`, this.clientEventForm, options)
+            .then(res => {
+                // we need to fire upp some thing
+                this.getClientEvents();
+            })
+    }
+
+    @action setActivityForm = (obj) => {
+        this.activityForm[obj.key] = obj.value;
+    }
+
+    @action addActivity = () => {
+        let token = localStorage.getItem('TOKEN');
+        let options = {};
+        options.headers = { "Authorization": token };
+        let activits = this.activityForm;
+        axios.post('/activities/addActivity', activits, options)
+            .then(res => {
+                console.log(res.data)
+            })
+            .catch(err => { console.log(err) })
+    }
+
+    @observable client = {};
+
+    @action getClientEvents = () => {
+        let token = localStorage.getItem('TOKEN');
+        let options = {};
+        options.headers = { "Authorization": token };
+        axios.get('/clients/events', options)
+            .then(res => {
+                this.client = res.data.client;
+                this.clientEvents = res.data.events;
+            })
+            .catch(err => console.log(err))
+    }
+
+    @action removeEventById = (eventId) => {
+        let token = localStorage.getItem('TOKEN');
+        let options = {};
+        options.headers = { "Authorization": token };
+        axios.delete(`/clients/event/${eventId}`, options)
+            .then(res => {
+                if (res.data.success) {
+                    this.getClientEvents();
+                }
+            })
+            .catch(err => console.log(err));
+    }
+
+
+
 
     @computed get getSetting() {
         return this.registerBussinessForm;
@@ -100,7 +172,7 @@ class Store {
                     if (res.data.success) {
                         let user = {
                             loggedIn: true,
-                            userModel: res.data.user + "/dashboard"
+                            userModel: res.data.user === 'business' ? res.data.user + "/dashboard" : res.data.user + '/search'
                         }
                         current.userStatus = user;
                     }
@@ -121,11 +193,9 @@ class Store {
         this.forgotPasswordForm[obj.key] = obj.value;
     }
 
-    @observable clients = [];
 
-    @observable message = null;
 
-    @observable business = [];
+    // @observable business = [];
 
     @action isExists = (user) => {
         if (user === "bussiness") {
@@ -173,7 +243,13 @@ class Store {
     }
 
     @action registerClient = () => {
-        axios.post('/clients/register', this.registerClientForm)
+        let fd = new FormData();
+        for (let key in this.registerClientForm) {
+            fd.append(key, this.registerClientForm[key])
+        }
+        let opts = {};
+        opts.headers = { contentType: "multipart/form-data" };
+        axios.post('/clients/register', fd, opts)
             .then(res => {
                 if (res.data.success) {
                     console.log(res.data)
@@ -193,7 +269,7 @@ class Store {
                     localStorage.setItem('TOKEN', res.data.token);
                     let user = {
                         loggedIn: true,
-                        userModel: res.data.user + "/dashboard"
+                        userModel: res.data.user === 'business' ? res.data.user + "/dashboard" : res.data.user + '/search'
                     }
                     this.userStatus = user;
                     this._clearErrors();
@@ -226,6 +302,7 @@ class Store {
     }
 
     @action logout = () => {
+        localStorage.removeItem("TOKEN");
         let user = {
             loggedIn: false,
             userModel: ""
@@ -277,12 +354,15 @@ class Store {
         this.errors.length = 0;
     }
 
+    @action updateBusinessArr = (filter) => {
+        this.business = filter;
+    }
 
 
 
     @observable bussinessCalendar = {
-        startPeriod: Date,
-        endPeriod: Date,
+        startPeriod: Date.now(),
+        endPeriod: Date.now(),
         workDays: [
             { day: "weekday-sun", flag: false, statrTime: '', endTime: '' },
             { day: "weekday-mon", flag: false, statrTime: '', endTime: '' },
@@ -327,104 +407,37 @@ class Store {
             .catch(err => console.log(err.msg));
     }
 
-    @observable events = this._getBussinessEvents();
 
     _getBussinessEvents() {
-        let myEventsList = [
-            {
-                id: 0,
-                title: 'All Day Event very long title',
-                allDay: true,
-                start: new Date(2018, 8, 0),
-                end: new Date(2018, 8, 1),
-            },
-            {
-                id: 5,
-                title: 'Conference',
-                start: new Date(2015, 3, 11),
-                end: new Date(2015, 3, 13),
-                desc: 'Big conference for important people',
-            },
-            {
-                id: 6,
-                title: 'Meeting',
-                start: new Date(2015, 3, 12, 10, 30, 0, 0),
-                end: new Date(2015, 3, 12, 12, 30, 0, 0),
-                desc: 'Pre-meeting meeting, to prepare for the meeting',
-            },
-            {
-                id: 7,
-                title: 'Lunch',
-                start: new Date(2015, 3, 12, 12, 0, 0, 0),
-                end: new Date(2015, 3, 12, 13, 0, 0, 0),
-                desc: 'Power lunch',
-            },
-            {
-                id: 8,
-                title: 'Meeting',
-                start: new Date(2015, 3, 12, 14, 0, 0, 0),
-                end: new Date(2015, 3, 12, 15, 0, 0, 0),
-            },
-            {
-                id: 9,
-                title: 'Happy Hour',
-                start: new Date(2015, 3, 12, 17, 0, 0, 0),
-                end: new Date(2015, 3, 12, 17, 30, 0, 0),
-                desc: 'Most important meal of the day',
-            },
-            {
-                id: 10,
-                title: 'Dinner',
-                start: new Date(2015, 3, 12, 20, 0, 0, 0),
-                end: new Date(2015, 3, 12, 21, 0, 0, 0),
-            },
-            {
-                id: 11,
-                title: 'Birthday Party',
-                start: new Date(2015, 3, 13, 7, 0, 0),
-                end: new Date(2015, 3, 13, 10, 30, 0),
-            },
-            {
-                id: 12,
-                title: 'Late Night Event',
-                start: new Date(2015, 3, 17, 19, 30, 0),
-                end: new Date(2015, 3, 18, 2, 0, 0),
-            },
-            {
-                id: 12.5,
-                title: 'Late Same Night Event',
-                start: new Date(2015, 3, 17, 19, 30, 0),
-                end: new Date(2015, 3, 17, 23, 30, 0),
-            },
-            {
-                id: 13,
-                title: 'Multi-day Event',
-                start: new Date(2015, 3, 20, 19, 30, 0),
-                end: new Date(2015, 3, 22, 2, 0, 0),
-            },
-            {
-                id: 14,
-                title: 'Today',
-                start: new Date(new Date().setHours(new Date().getHours() - 3)),
-                end: new Date(new Date().setHours(new Date().getHours() + 3)),
-            },
-        ]
-        
-        let events = [];
         let token = localStorage.getItem('TOKEN');
         let opts = {}
         opts.headers = { Authorization: token }
         axios.get('/bussiness/calendar', opts)
-            .then(res => console.log(res.data))
+            .then(res => {
+                let mapped = res.data.events.map(item => {
+                    let start = moment(item.date);
+                    start.add(Number(item.startingTime.split(":")[0]), 'hours');
+                    start.add(Number(item.startingTime.split(":")[1]), 'minutes');
+                    let end = start.clone();
+                    end.add(item.activityId.duration, 'minutes');
+                    let obj = {
+                        id: item._id,
+                        title: item.activityId.type,
+                        start: start.toDate(),
+                        end: end.toDate()
+                    }
+                    return obj;
+                }
+                );
+                this.events = mapped;
+                console.log(res.data);
+            })
             .catch(err => console.log(err.msg));
-
-            
-
-            return myEventsList;    
     }
 
 
-    @action updateBusinessArr(filter){
+    @action updateBusinessArr(filter) {
+        debugger;
         this.business = filter;
     }
 

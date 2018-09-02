@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+const conn = require('../config/conncetion');
 
 const TimeDuration = new Schema({
     timeStart: String,
@@ -13,4 +14,4 @@ const WorkDaySchema = new Schema({
     events: [{type: Schema.Types.ObjectId, ref:'event'}] //not working
 });
 
-module.exports = mongoose.model('workDay', WorkDaySchema);
+module.exports = conn.model('workDay', WorkDaySchema);

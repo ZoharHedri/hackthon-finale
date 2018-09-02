@@ -8,6 +8,7 @@ import { inject, observer } from '../../../node_modules/mobx-react';
 import BussinessClients from '../BusinessClients/BussinessClients';
 import Redirect from 'react-router-dom/Redirect';
 import ActivityForm from '../Activities/ActivityForm';
+import BussinessCalendar from '../BussinessCalendar/BussinessCalendar';
 
 @inject("store")
 @observer
@@ -16,7 +17,6 @@ export class Bussiness extends Component {
         this.props.store.getSettingApi();
     }
     handleClick = () => {
-        localStorage.removeItem("TOKEN");
         this.props.store.logout();
     }
     render() {
@@ -32,6 +32,7 @@ export class Bussiness extends Component {
                     <Route exact path="/business/setting" component={Setting} />
                     <Route excat path="/business/activites" component={ActivityForm} />
                     <Route excat path="/business/clients" component={BussinessClients} />
+                    <Route excat path="/business/calendar" component={BussinessCalendar} />
                 </div>
                 {!this.props.store.userStatus.loggedIn && <Redirect to={this.props.store.userStatus.userModel} />}
             </div>

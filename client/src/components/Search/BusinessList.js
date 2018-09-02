@@ -1,14 +1,14 @@
 import React, { Component } from 'react'
 import { observer, inject } from 'mobx-react';
+import DisplayBussinessSearch from './DisplayBussinessSearch'
 
-
-@observer
 @inject("store")
+@observer
 class BusinessList extends Component {
   render() {
     return (
-      <div>
-        {this.props.store.business.map((item) => <div>123</div>)}
+      <div style={{ display: "flex", flexWrap: "wrap" }}>
+        {this.props.store.business.map((item) => <DisplayBussinessSearch key={item._id} {...item} />)}
       </div>
     )
   }
