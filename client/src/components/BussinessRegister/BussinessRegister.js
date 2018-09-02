@@ -81,8 +81,8 @@ class BussinessRegister extends Component {
                         </div>
                         <div className="register__input-group">
                             <span className="register__label" >Category</span>
-                            <select className="register__select" onChange={this.handleChange} name="category">
-                                <option selected="true" disabled="disabled" hidden="hidden">Choose Category</option>
+                            <select className="register__select" onChange={this.handleChange} name="category" defaultValue="">
+                                <option value="" disabled="disabled" hidden="hidden">Choose Category</option>
                                 <option value="Arts, crafts, and collectibles">Arts, crafts, and collectibles</option>
                                 <option value="Baby">Baby</option>
                                 <option value="Beauty and fragrances">Beauty and fragrances</option>
