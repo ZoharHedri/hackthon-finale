@@ -20,4 +20,13 @@ Router.post('/addActivity', passport.authenticate('jwt', { session: false }), (r
         .catch(err => res.json({ success: true, msg: `${err}` }))
 })
 
+Router.delete('/delete/:activityID', passport.authenticate('jwt', { session: false }), (req, res) => {
+    let allActivities = req.user.activites;
+    let index = allActivities.findIndex(item => item.id === req.params.activityID)
+    allActivities.splice(index,1)
+    req.user.save()
+    .then(user=>res.send({ success: true, messege: "activity deleted" }))
+    .catch(err=>res.send({ success: false, messege: "activity not deleted" }))
+})
+
 module.exports = Router;
