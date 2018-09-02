@@ -178,7 +178,15 @@ Router.get('/calendar', passport.authenticate('jwt', { session: false }), (req, 
 });
 
 Router.get('/clients', passport.authenticate('jwt', { session: false }), (req, res) => {
-    res.send({ success: true, clients: req.user.clients })
+    let clientsWithEvent = req.user.clients.filter(client => {
+        let now = moment();
+        for(let i=0; i<client.events.length; i++){
+            let date= moment(client.events[i].date);
+            if(date >= now) return true;    
+        }
+        return false;
+    })
+    res.send({ success: true, clients: clientsWithEvent })
 
 });
 
