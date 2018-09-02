@@ -8,10 +8,10 @@ import moment from 'moment';
 
 //'const' not 'function'!,
 const Details = (props) => {
-    
+
     //console.log(moment().format('dddd'));//day name
     // console.log(moment().format('M/D/Y'));//the day,month and year
-    let currentTime = moment().format('M/D/Y');
+    let currentTime = moment().format('DD/MM/YYYY');
 
     const detailsOfUser = props.detailsUser; //the 'detailsOfUser' is object! not array
     // debugger;
@@ -19,11 +19,11 @@ const Details = (props) => {
         <div className="business-details">
             <h1 className="business-h">Details Bussiness</h1>
             <p className="business-time">{currentTime}</p>
-            <div> 
+            <div>
                 {/* key={detailsOfUser.id} */}
                 <h1 className="business-name">{detailsOfUser.name}</h1>
-                <h3 className="business-address">{detailsOfUser.address}</h3><br/>
-                <p className="business-category">{detailsOfUser.category}</p><br/>
+                <h3 className="business-address">{detailsOfUser.address}</h3><br />
+                <p className="business-category">{detailsOfUser.category}</p><br />
                 <p className="business-phoneAanEmail">{detailsOfUser.phone} {detailsOfUser.email}</p>
             </div>
         </div>
@@ -31,10 +31,10 @@ const Details = (props) => {
 }
 
 const TodayActivities = (props) => {
-    
-    debugger;
-    const actDetails  = props; //actDetails = object (with '.__proto__' func) 
-    console.log(actDetails); 
+
+    // debugger;
+    const actDetails = props; //actDetails = object (with '.__proto__' func) 
+    // console.log(actDetails);
     // console.log(Object.keys(actDetails)); 
     return (
         <div className="today-activities">
@@ -59,7 +59,7 @@ const Statistic = (props) => {
 
 class Dashboard extends Component {
 
-    state = {user : [] };
+    state = { user: [] };
     componentDidMount = () => {
         //ajax call with axios,and TOKEN
         let token = localStorage.getItem('TOKEN');
@@ -67,9 +67,9 @@ class Dashboard extends Component {
         dashToken.headers = { Authorization: token }
         axios.get("/dashboard", dashToken)
             .then(res => {
-                this.setState({user: res.data.details}); 
+                this.setState({ user: res.data.details });
                 // debugger;
-                console.log(res.data.success); //good
+                // console.log(res.data.success); //good
             })
             .catch(err => console.error(`${err} - ERR mesage`));
     }
@@ -80,7 +80,7 @@ class Dashboard extends Component {
                 <Details detailsUser={this.state.user} />
                 <hr />
                 {/*activites={this.state.user.activites} */}
-                 <TodayActivities workingDays={this.state.user.workingDays}/>
+                <TodayActivities workingDays={this.state.user.workingDays} />
                 <hr />
                 <Statistic />
 

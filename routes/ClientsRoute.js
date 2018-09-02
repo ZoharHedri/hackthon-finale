@@ -3,6 +3,8 @@ const Router = express.Router();
 const passport = require('passport');
 const Client = require('../model/ClientsModel');
 const Event = require('../model/EventModel');
+const Bussiness = require('../model/BussinesModel');
+const WorkDay = require('../model/WorkDayModel');
 
 Router.post('/register', (req, res) => {
     req.check('name', 'name is required').notEmpty();
@@ -52,7 +54,50 @@ Router.get('/events', passport.authenticate('jwt', { session: false }), (req, re
     let eventsSortedByDate = req.user.events.sort(
         (event1, event2) => event2.date - event1.date
     )
-    res.send({ success: true, events: eventsSortedByDate });
+    let client = {
+        name: req.user.name,
+        phone: req.user.phone,
+        email: req.user.email,
+        avatarUrl: req.user.avatarUrl
+    }
+    res.send({ success: true, events: eventsSortedByDate, client: client });
+})
+
+Router.post('/events/add/:bussinessId/:workingDayId', passport.authenticate('jwt', { session: false }), (req, res) => {
+    console.log('check');
+    // save the event in the event
+    let newEvent = new Event({
+        activityId: req.body.activityId,
+        date: req.body.timeDate.date,
+        startingTime: req.body.timeDate.startingTime,
+        status: "NEW"
+    })
+
+    newEvent.save()
+        .then(event => {
+            WorkDay.findOne({ _id: req.params.workingDayId })
+                .then(workDay => {
+                    workDay.events = workDay.events.concat(event._id);
+                    workDay.save()
+                        .then(workDay => {
+                            Bussiness.findOne({ _id: req.params.bussinessId })
+                                .then(bussiness => {
+                                    let found = bussiness.clients.find(item => item._id.toString() === req.user.id);
+                                    if (!found) {
+                                        bussiness.clients = bussiness.clients.concat(req.user._id);
+                                    }
+
+                                    bussiness.save()
+                                        .then(bussiness => {
+                                            req.user.events = req.user.events.concat(event._id);
+                                            req.user.save()
+                                                .then(client => res.send({ success: true, msg: "event has been saved" }))
+                                        })
+                                })
+                        })
+                })
+        })
+
 })
 
 Router.delete('/event/:eventId', passport.authenticate('jwt', { session: false }), (req, res) => {

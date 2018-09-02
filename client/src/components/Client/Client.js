@@ -22,7 +22,10 @@ class Client extends Component {
                 <SideBarClient pathname={this.props.location.pathname} />
                 <div className="myclient__main">
                     <header className="myclient__header">
-                        <div className="myclient__name">Test Test</div>
+                        <div className="myclient__img-box">
+                            {this.props.store.client.avatarUrl && <img className="myclient__img" src={`/images/${this.props.store.client.avatarUrl}`} alt="user" />}
+                        </div>
+                        <div className="myclient__name">{this.props.store.client.name}</div>
                         <button onClick={this.handleClick} className="myclient__btn">Sign Out</button>
                     </header>
                     <Route exact path="/client/search" component={SearchBar} />

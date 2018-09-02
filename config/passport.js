@@ -2,11 +2,11 @@ const JwtStrategy = require('passport-jwt').Strategy;
 // we can extract the token from th header token
 const ExtractJwt = require('passport-jwt').ExtractJwt;
 
-let Activty = require('../model/ActivtyModel');
 let WorkDay = require('../model/WorkDayModel');
 let Bussiness = require('../model/BussinesModel');
 let Client = require('../model/ClientsModel');
 let Event = require('../model/EventModel');
+let Activty = require('../model/ActivtyModel');
 
 module.exports = function (passport) {
     let opts = {};

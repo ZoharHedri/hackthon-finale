@@ -16,7 +16,6 @@ class App extends Component {
     return (
       <BrowserRouter>
         <div>
-
           <Route exact path="/" component={Login} />
           <Route path="/business" render={(props) => (
             this.props.store.userStatus.loggedIn ? <Bussiness {...props} /> : <Redirect to="/" />

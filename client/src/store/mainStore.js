@@ -1,6 +1,6 @@
 import { observable, action, computed } from 'mobx';
 import axios from 'axios';
-
+import moment from 'moment';
 // TODO: here we will handle all of our states
 class Store {
     @observable errors = [];
@@ -58,6 +58,41 @@ class Store {
 
     @observable business = [];
 
+    @observable events = [];
+
+
+    @observable clientEventForm = {
+        activityId: "",
+        timeDate: {
+            date: "",
+            startingTime: "",
+        },
+        status: ""
+    }
+
+    @action setCientEventForm = (obj) => {
+        if (obj.key) {
+            this.clientEventForm[obj.key] = obj.value;
+        } else {
+            let setTimeDate = {
+                date: obj.date,
+                startingTime: obj.startingTime
+            }
+            this.clientEventForm["timeDate"] = setTimeDate;
+        }
+    }
+
+    @action saveEventForClient(bussinessId, workingDayId) {
+        let token = localStorage.getItem('TOKEN');
+        let options = {};
+        options.headers = { "Authorization": token };
+        axios.post(`/clients/events/add/${bussinessId}/${workingDayId}`, this.clientEventForm, options)
+            .then(res => {
+                // we need to fire upp some thing
+                this.getClientEvents();
+            })
+    }
+
     @action setActivityForm = (obj) => {
         this.activityForm[obj.key] = obj.value;
     }
@@ -74,12 +109,15 @@ class Store {
             .catch(err => { console.log(err) })
     }
 
+    @observable client = {};
+
     @action getClientEvents = () => {
         let token = localStorage.getItem('TOKEN');
         let options = {};
         options.headers = { "Authorization": token };
         axios.get('/clients/events', options)
             .then(res => {
+                this.client = res.data.client;
                 this.clientEvents = res.data.events;
             })
             .catch(err => console.log(err))
@@ -156,6 +194,8 @@ class Store {
     }
 
 
+
+    // @observable business = [];
 
     @action isExists = (user) => {
         if (user === "bussiness") {
@@ -317,6 +357,90 @@ class Store {
     @action updateBusinessArr = (filter) => {
         this.business = filter;
     }
+
+
+
+    @observable bussinessCalendar = {
+        startPeriod: Date.now(),
+        endPeriod: Date.now(),
+        workDays: [
+            { day: "weekday-sun", flag: false, statrTime: '', endTime: '' },
+            { day: "weekday-mon", flag: false, statrTime: '', endTime: '' },
+            { day: "weekday-tue", flag: false, statrTime: '', endTime: '' },
+            { day: "weekday-wed", flag: false, statrTime: '', endTime: '' },
+            { day: "weekday-thu", flag: false, statrTime: '', endTime: '' },
+            { day: "weekday-fri", flag: false, statrTime: '', endTime: '' },
+            { day: "weekday-sat", flag: false, statrTime: '', endTime: '' },
+        ]
+    }
+
+    @action setBussinessCalendar = (obj) => {
+        this.bussinessCalendar[obj.key] = obj.value;
+
+        console.log('setBussinessCalendar chaged..');
+    }
+
+
+    @action setBussinessCalendarDay = (dayName) => {
+        let findDay = this.bussinessCalendar.workDays.find(item => dayName === item.day);
+        findDay.flag = !findDay.flag;
+
+    }
+
+
+    @action setBussinessCalendarDayTime = (obj) => {
+        // let findDay = this.bussinessCalendar.workDays.find(item => dayName === item.day);
+        this.bussinessCalendar.workDays[0][obj.key] = obj.value;
+
+        console.log('setBussinessCalendarDayTime chaged..');
+    }
+
+
+
+    @action setBussinessCalendarWorkDays = (periodWorkDays) => {
+
+        let token = localStorage.getItem('TOKEN');
+        let opts = {}
+        opts.headers = { Authorization: token }
+        axios.post('/bussiness/calendar/', periodWorkDays, opts)
+            .then(res => console.log(res.data))
+            .catch(err => console.log(err.msg));
+    }
+
+
+    _getBussinessEvents() {
+        let token = localStorage.getItem('TOKEN');
+        let opts = {}
+        opts.headers = { Authorization: token }
+        axios.get('/bussiness/calendar', opts)
+            .then(res => {
+                let mapped = res.data.events.map(item => {
+                    let start = moment(item.date);
+                    start.add(Number(item.startingTime.split(":")[0]), 'hours');
+                    start.add(Number(item.startingTime.split(":")[1]), 'minutes');
+                    let end = start.clone();
+                    end.add(item.activityId.duration, 'minutes');
+                    let obj = {
+                        id: item._id,
+                        title: item.activityId.type,
+                        start: start.toDate(),
+                        end: end.toDate()
+                    }
+                    return obj;
+                }
+                );
+                this.events = mapped;
+                console.log(res.data);
+            })
+            .catch(err => console.log(err.msg));
+    }
+
+
+    @action updateBusinessArr(filter) {
+        debugger;
+        this.business = filter;
+    }
+
 }
 
 // initialize our store
