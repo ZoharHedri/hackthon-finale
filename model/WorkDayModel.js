@@ -9,9 +9,9 @@ const TimeDuration = new Schema({
 
 const WorkDaySchema = new Schema({
     timeDuration: TimeDuration,
-    date: Date,
+    date: { type: String, unique: true },
     breaking: [],
-    events: [{type: Schema.Types.ObjectId, ref:'event'}] //not working
+    events: [{ type: Schema.Types.ObjectId, ref: 'event' }] //not working
 });
 
 module.exports = conn.model('workDay', WorkDaySchema);

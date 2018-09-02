@@ -18,12 +18,8 @@
     "jsonwebtoken": "^8.3.0",
     "moment": "^2.22.2",
     "mongoose": "^5.2.9",
-<<<<<<< HEAD
     "multer": "^1.3.1",
     "multer-gridfs-storage": "^3.1.0",
-=======
-    "mongoose-autopopulate": "^0.8.0",
->>>>>>> master
     "nodemailer": "^4.6.8",
     "passport": "^0.4.0",
     "passport-jwt": "^4.0.0"

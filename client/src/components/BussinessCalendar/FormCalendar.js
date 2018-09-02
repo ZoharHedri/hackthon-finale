@@ -52,7 +52,7 @@ class FormCalendar extends Component {
         for (let d = start; d <= end; d = d.add(1, 'd')) {
             // console.log(d.toDate());
             if (this.props.store.bussinessCalendar.workDays[d.day()].flag) {
-                periodWorkDays.push({ date: d.toDate(), timeStart: this.props.store.bussinessCalendar.workDays[0].statrTime, timeEnd: this.props.store.bussinessCalendar.workDays[0].endTime });
+                periodWorkDays.push({ date: d.format("DD/MM/YYYY"), timeStart: this.props.store.bussinessCalendar.workDays[0].statrTime, timeEnd: this.props.store.bussinessCalendar.workDays[0].endTime });
             }
         }
         // console.log(periodWorkDays);
