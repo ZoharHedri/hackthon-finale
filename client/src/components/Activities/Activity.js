@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import EditableLabel from 'react-inline-editing';
 import { observer, inject } from 'mobx-react';
+import './Activity.scss';
 
 @inject("store")
 @observer
@@ -21,7 +22,7 @@ export default class Activity extends Component {
         console.log('Left editor with text: ' + text);
     }
 
-    onClick = ()=>{
+    onClick = () => {
         this.props.store.removeActivity(this.props._id);
     }
 
@@ -31,14 +32,16 @@ export default class Activity extends Component {
 
     render() {
         return (
-            <div>
-                <EditableLabel text={this.props.type} onFocus={this._handleFocus}
-                    onFocusOut={this._handleFocusOut} />
-                <EditableLabel text={this.props.price} onFocus={this._handleFocus}
-                    onFocusOut={this._handleFocusOut} />
-                <EditableLabel text={this.props.duration} onFocus={this._handleFocus}
-                    onFocusOut={this._handleFocusOut} />
-                    <button onClick={this.onClick}>Remove</button>
+            <div className="activity-box">
+                <div className="activity">
+                    <div className="activity__label-box">
+                        <span className="activity__sign">$</span>
+                        <span className="activity__label">{this.props.price}</span>
+                    </div>
+                    <div className="activity__type" >{this.props.type}</div>
+                    <div className="activity__duration" >{this.props.duration} minute's</div>
+                    <button className="activity__btn" onClick={this.onClick}>Remove</button>
+                </div>
             </div>
         )
     }

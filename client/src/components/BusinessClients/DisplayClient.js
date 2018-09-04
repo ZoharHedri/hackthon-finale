@@ -13,6 +13,12 @@ class DisplayClient extends Component {
         </div>
         <div className="client__value">{this.props.client.phone}</div>
         <div className="client__value">{this.props.client.email}</div>
+        <div className="client__value">
+          <span className="client__tag">{this.props.client.events}</span>
+        </div>
+        <div className="client__value">
+          <span className="client__today">{this.props.client.todayEvent ? "YES" : "NO"}</span>
+        </div>
       </div>
     )
   }

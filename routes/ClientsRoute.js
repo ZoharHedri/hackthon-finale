@@ -106,8 +106,22 @@ Router.delete('/event/:eventId', passport.authenticate('jwt', { session: false }
     let index = evenets.findIndex(item => item.id === eventId)
     evenets.splice(index, 1);
     req.user.events = evenets;
-    req.user.save()
-        .then(user => res.send({ success: true, msg: "event deleted" }))
-        .catch(err => res.send({ success: false, msg: "something went worng please try again" }));
+    // delete the event allso from the workDay
+    WorkDay.updateOne({ events: eventId }, { $pull: { events: eventId } })
+        .then(workDayRes => {
+            // if the user dosent have events then we need to delete it from all the bussiness client
+            if (evenets.length === 0) {
+                Bussiness.updateMany({ clients: req.user._id }, { $pull: { clients: req.user._id } })
+                    .then(result => {
+                        req.user.save()
+                            .then(user => res.send({ success: true, msg: "event deleted" }))
+                            .catch(err => res.send({ success: false, msg: "something went worng please try again" }));
+                    })
+            } else {
+                req.user.save()
+                    .then(user => res.send({ success: true, msg: "event deleted" }))
+                    .catch(err => res.send({ success: false, msg: "something went worng please try again" }));
+            }
+        })
 })
 module.exports = Router;

@@ -9,6 +9,7 @@ import BussinessClients from '../BusinessClients/BussinessClients';
 import Redirect from 'react-router-dom/Redirect';
 import ActivityForm from '../Activities/ActivityForm';
 import BussinessCalendar from '../BussinessCalendar/BussinessCalendar';
+import Button from '@material-ui/core/Button'
 
 @inject("store")
 @observer
@@ -25,8 +26,8 @@ export class Bussiness extends Component {
                 <SideBar pathname={this.props.location.pathname} />
                 <div className="bussiness__main">
                     <header className="bussiness__header">
-                        <div className="bussiness__name">@{this.props.store.getSetting.name}</div>
-                        <button onClick={this.handleClick} className="bussiness__btn">Sign Out</button>
+                        {/* className="bussiness__btn" */}
+                        <Button style={{ marginLeft: "auto", marginRight: "16px" }} variant="extendedFab" color="default" onClick={this.handleClick} >logOut</Button>
                     </header>
                     <Route exact path="/business/dashboard" component={Dashboard} />
                     <Route exact path="/business/setting" component={Setting} />

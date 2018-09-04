@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Children } from 'react';
 import { inject, observer } from '../../../node_modules/mobx-react';
 
 import FormCalendar from './FormCalendar';
@@ -12,8 +12,8 @@ import './BussinessCalendar.css';
 
 
 // let eventsList = [];
+let allViews = Object.keys(BigCalendar.Views).map(k => k !== "agenda" ? BigCalendar.Views[k] : null)
 
-let allViews = Object.keys(BigCalendar.Views).map(k => BigCalendar.Views[k])
 BigCalendar.momentLocalizer(moment); // or globalizeLocalizer
 
 const handleSelect = ({ start, end }) => {
@@ -21,26 +21,63 @@ const handleSelect = ({ start, end }) => {
   alert("fdjhtd");
 }
 
-const Calendar = props => (
-  <div className="calanderConteiner">
-    <BigCalendar
-      events={props.events}
-      defaultView={BigCalendar.Views.WEEK}
-      views={allViews}
-      selectable
-      onSelectEvent={event => alert(event.title)}
-      onSelectSlot={handleSelect}
-      scrollToTime={new Date(2018, 7, 1, 6)}
-      step={15}
-      timeslots={1}
-    // min={new Date(2018, 8, 1)}
-    // max={new Date(2018, 9, 1)}
-    //  defaultDate={Date.now}
-    // startAccessor={props.startPeriod}
-    // endAccessor='endDate'
-    />
-  </div>
-);
+@inject("store")
+@observer
+class ColoredDateCellWrapper extends Component {
+  START_PERIOD = moment(this.props.store.bussinessCalendar.startPeriod).toDate();
+  END_PERIOD = moment(this.props.store.bussinessCalendar.endPeriod).toDate();
+  render() {
+    return React.cloneElement(Children.only(this.props.children), {
+      style: {
+        ...this.props.children.style,
+        backgroundColor: this.props.value >= this.START_PERIOD && this.props.value <= this.END_PERIOD ? 'lightgreen' : '#fff',
+      },
+    });
+  }
+}
+
+@observer
+class Calendar extends Component {
+  eventStyleGetter = (event, start, end, isSelected) => {
+    let backgroundColor = '#' + event.hexColor;
+    let randColor = "#" + ((1 << 24) * Math.random() | 0).toString(16);
+    let style = {
+      backgroundColor: randColor,
+      borderRadius: '5px',
+      opacity: 0.8,
+      color: '#fff',
+      border: '0px',
+      display: 'block'
+    };
+    return {
+      style: style
+    };
+  }
+  render() {
+    return <div className="calanderConteiner">
+      <BigCalendar
+        events={this.props.events}
+        defaultView={BigCalendar.Views.WEEK}
+        views={allViews}
+        selectable
+        eventPropGetter={this.eventStyleGetter}
+        components={{
+          dateCellWrapper: ColoredDateCellWrapper
+        }}
+        onSelectEvent={event => alert(event.title)}
+        onSelectSlot={handleSelect}
+        scrollToTime={new Date(2018, 7, 1, 6)}
+        step={15}
+        timeslots={1}
+      // min={new Date(2018, 8, 1)}
+      // max={new Date(2018, 9, 1)}
+      //  defaultDate={Date.now}
+      // startAccessor={props.startPeriod}
+      // endAccessor='endDate'
+      />
+    </div>
+  }
+}
 
 @inject('store')
 @observer

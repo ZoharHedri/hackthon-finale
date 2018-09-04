@@ -7,8 +7,10 @@
         display: flex;
         flex-direction: column;
         width: 90%;
-        border: 2px solid #eee;
+        // border: 2px solid #eee;
         border-radius: 5px;
+        background: #fff;
+        box-shadow: 0 5px 5px rgba($color: #000000, $alpha: .12);
     }
     &__header{
         display: flex;

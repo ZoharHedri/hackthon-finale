@@ -1,4 +1,4 @@
-import { observable, action, computed, remove } from 'mobx';
+import { observable, action, computed } from 'mobx';
 import axios from 'axios';
 import moment from 'moment';
 // TODO: here we will handle all of our states
@@ -370,8 +370,8 @@ class Store {
 
 
     @observable bussinessCalendar = {
-        startPeriod: Date.now(),
-        endPeriod: Date.now(),
+        startPeriod: moment().format("DD/MM/YYYY"),
+        endPeriod: moment().format("DD/MM/YYYY"),
         workDays: [
             { day: "weekday-sun", flag: false, statrTime: '', endTime: '' },
             { day: "weekday-mon", flag: false, statrTime: '', endTime: '' },
@@ -385,7 +385,6 @@ class Store {
 
     @action setBussinessCalendar = (obj) => {
         this.bussinessCalendar[obj.key] = obj.value;
-
         console.log('setBussinessCalendar chaged..');
     }
 
@@ -424,7 +423,7 @@ class Store {
         axios.get('/bussiness/calendar', opts)
             .then(res => {
                 let mapped = res.data.events.map(item => {
-                    let start = moment(item.date);
+                    let start = moment(item.date, "DD/MM/YYYY");
                     start.add(Number(item.startingTime.split(":")[0]), 'hours');
                     start.add(Number(item.startingTime.split(":")[1]), 'minutes');
                     let end = start.clone();
@@ -436,10 +435,8 @@ class Store {
                         end: end.toDate()
                     }
                     return obj;
-                }
-                );
+                });
                 this.events = mapped;
-                console.log(res.data);
             })
             .catch(err => console.log(err.msg));
     }

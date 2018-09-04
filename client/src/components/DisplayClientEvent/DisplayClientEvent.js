@@ -10,7 +10,7 @@ class DisplayClientEvent extends Component {
     render() {
         return (
             <div>
-                <div>{moment(this.props.date).format("DD/MM/YYYY")}</div>
+                <div>{this.props.date}</div>
                 <div>{this.props.startingTime}</div>
                 <div>{this.props.status}</div>
                 <div>{this.props.activityId.type}</div>

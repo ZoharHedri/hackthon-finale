@@ -17,13 +17,25 @@
     }
 
     &__value{
-        flex: 0 0 33.3333%;
+        flex: 0 0 20%;
         display: flex;
         align-items: center;
         color: #777;
         &--ml{
             padding-left: 16px;
         }
+        
+    }
+
+    &__tag{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 1.75rem;
+        height: 1.75rem;
+        color: #fff;
+        background: #ff7675;
+        border-radius: 100px;
     }
 
     &__img-box{
