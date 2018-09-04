@@ -33,33 +33,33 @@ const Details = (props) => {
 
 const TodayActivities = (props) => {
     debugger;
-    console.log(props); 
+    console.log(props);
     return (
         <div className="dashboard-activities">
-        <div>
-            <span className="dashboard-type">type: {props.activityId.type}</span>
-            <span className="dashboard-price">price: {props.activityId.price} ₪</span>
-        </div>
-        <div>
-            <span className="dashboard-startingTime">startingTime: {props.startingTime}</span>
-            <span className="dashboard-duration">duration: {props.activityId.duration}</span>
-        </div>
+            <div>
+                <span className="dashboard-type">type: {props.activityId.type}</span>
+                <span className="dashboard-price">price: {props.activityId.price} ₪</span>
+            </div>
+            <div>
+                <span className="dashboard-startingTime">startingTime: {props.startingTime}</span>
+                <span className="dashboard-duration">duration: {props.activityId.duration}</span>
+            </div>
         </div>
     );
 }
 
-const Statistic = (props) => {
-    return (
-        <div className="dashboard-statistic">
-            Statistic
-        </div>
-    );
+// const Statistic = (props) => {
+//     return (
+//         <div className="dashboard-statistic">
+//             Statistic
+//         </div>
+//     );
 
-}
+// }
 
 class Dashboard extends Component {
 
-    state = { user: [], eventsDay:[] };
+    state = { user: [], eventsDay: [] };
     componentDidMount() {
         //ajax call with axios,and TOKEN
         let token = localStorage.getItem('TOKEN');
@@ -68,7 +68,7 @@ class Dashboard extends Component {
         axios.get("/dashboard", dashToken)
             .then(res => {
                 // debugger;
-                this.setState({ user: res.data.details,  eventsDay:res.data.details.eventsDay}); 
+                this.setState({ user: res.data.details, eventsDay: res.data.details.eventsDay });
                 // debugger;
                 // console.log(res.data.success); //good
             })
@@ -82,8 +82,8 @@ class Dashboard extends Component {
                 <Details detailsUser={this.state.user} />
                 <hr />
                 {/*activites={this.state.user.activites} */}
-                 <h1 className="dashboard-today-activities">TodayActivities</h1>
-                 {this.state.eventsDay.map(item => <TodayActivities key={item._id} {...item} />)}
+                <h1 className="dashboard-today-activities">TodayActivities</h1>
+                {this.state.eventsDay.map(item => <TodayActivities key={item._id} {...item} />)}
                 <hr />
                 {/* <Statistic /> */}
 

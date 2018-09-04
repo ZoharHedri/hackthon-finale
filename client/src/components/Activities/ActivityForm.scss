@@ -1,0 +1,38 @@
+.activity-form-warp{
+    position: absolute;
+    top: 50%;
+    left:50%;
+    transform: translate(-50%, -50%);
+    padding: 3rem;
+}
+
+.activity-from-headline{
+    font-size: 1.6rem;
+    text-transform: capitalize;
+    margin-bottom: 16px;
+}
+
+.activity-form{
+    display: flex;
+    flex-direction: column;
+    &__group{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    &__label{
+        align-self: flex-start;
+        color: #333;
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+    &__input{
+        margin-bottom: 16px;
+        border: 2px solid #eee;
+        border-radius: 100px;
+        padding: 10px 15px;
+        &:focus{
+            outline: none;
+        }
+    }
+}

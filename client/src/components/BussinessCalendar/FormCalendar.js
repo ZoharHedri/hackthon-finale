@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { inject, observer } from '../../../node_modules/mobx-react';
 import moment from 'moment';
-import './BussinessCalendar.css';
+import './FormCalendar.scss';
+import Button from '@material-ui/core/Button'
 
 
 
@@ -63,19 +64,17 @@ class FormCalendar extends Component {
 
     render() {
         return (
-            <div>
-                <form onSubmit={this.handleSubmit}>
-                    <div>
-                        <label>open your calendar from :
-            <input onChange={this.handleChangeStartPeriod} name="startPeriod" type="date" placeholder="date" value={this.props.store.bussinessCalendar.startPeriod} required />
-                            to
-                         <input onChange={this.handleChangeEndPeriod} name="endPeriod" type="date" placeholder="date" value={this.props.store.bussinessCalendar.endPeriod} required />
-                        </label>
+            <div className="calendar">
+                <form className="calendar__form" onSubmit={this.handleSubmit}>
+                    <div className="calendar__group">
+                        <label className="calendar__label">open your calendar from :</label>
+                        <input className="calendar__input" onChange={this.handleChangeStartPeriod} name="startPeriod" type="date" placeholder="date" value={this.props.store.bussinessCalendar.startPeriod} required />
+                        <span className="calendar__label">to</span>
+                        <input className="calendar__input" onChange={this.handleChangeEndPeriod} name="endPeriod" type="date" placeholder="date" value={this.props.store.bussinessCalendar.endPeriod} required />
                     </div>
-                    <div>
-                        <br /><label>your workdays: </label>
+                    <div className="calendar__group">
+                        <label className="calendar__label">your workdays: </label>
                         <div className="weekDays-selector">
-
                             <input onClick={this.handleClickDays} name="weekday-sun" type="checkbox" id="weekday-sun" className="weekday" />
                             <label htmlFor="weekday-sun">S</label>
                             <input onClick={this.handleClickDays} name="weekday-mon" type="checkbox" id="weekday-mon" className="weekday" />
@@ -90,17 +89,15 @@ class FormCalendar extends Component {
                             <label htmlFor="weekday-fri">F</label>
                             <input onClick={this.handleClickDays} name="weekday-sat" type="checkbox" id="weekday-sat" className="weekday" />
                             <label htmlFor="weekday-sat">S</label>
-
                         </div>
                     </div>
-                    <div>
-                        <label>work hours from:
-                    <input onChange={this.handleChangeTime} name="statrTime" type="text" pattern="^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$" placeholder="08:00 ex" value={this.props.store.bussinessCalendar.workDays[0].statrTime} required /> to
-                            <input onChange={this.handleChangeTime} name="endTime" type="text" pattern="^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$" placeholder="17:00 ex" value={this.props.store.bussinessCalendar.workDays[0].endTime} required />
-                        </label>
-                        {/* <label>break from:  <input type="time" /> to  <input type="time" /> </label> */}
+                    <div className="calendar__group">
+                        <label className="calendar__label" >work hours from: </label>
+                        <input className="calendar__input" onChange={this.handleChangeTime} name="statrTime" type="text" pattern="^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$" placeholder="08:00 ex" value={this.props.store.bussinessCalendar.workDays[0].statrTime} required />
+                        <span className="calendar__label">to</span>
+                        <input className="calendar__input" onChange={this.handleChangeTime} name="endTime" type="text" pattern="^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$" placeholder="17:00 ex" value={this.props.store.bussinessCalendar.workDays[0].endTime} required />
                     </div>
-                    <button type="submit">save</button>
+                    <Button style={{ alignSelf: "center" }} variant="raised" color="secondary" type="submit">save</Button>
                 </form>
             </div>
         )

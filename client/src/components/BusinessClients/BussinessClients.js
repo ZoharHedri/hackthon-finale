@@ -15,19 +15,26 @@ class BussinessClients extends Component {
   render() {
     return (
       <div className="clients">
-        <div className="clients__headlines">
-          <div className="clients__header">
-            Name
+        {this.props.store.clients.length > 0 &&
+          <div className="clients__headlines">
+            <div className="clients__header">
+              Name
           </div>
-          <div className="clients__header">
-            Phone
+            <div className="clients__header">
+              Phone
           </div>
-          <div className="clients__header">
-            Email
+            <div className="clients__header">
+              Email
           </div>
-        </div>
+            <div className="clients__header">
+              upcoming events
+          </div>
+            <div className="clients__header">
+              Today
+          </div>
+          </div>
+        }
         {this.props.store.clients.map((item, index) => <DisplayClient key={item._id} client={item} />)}
-
       </div>
     )
   }

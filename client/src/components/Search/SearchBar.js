@@ -1,7 +1,8 @@
 import React, { Component } from 'react'
 import axios from 'axios'
 import { inject } from 'mobx-react';
-import { debounce } from 'lodash'
+import { debounce } from 'lodash';
+import './SearchBar.scss';
 
 @inject("store")
 class SearchBar extends Component {
@@ -29,8 +30,8 @@ class SearchBar extends Component {
 
   render() {
     return (
-      <div>
-        <input type="text" value={this.state.textInput} onKeyUp={this.handleKeyUp.bind(this)} onChange={(e) => this.handleTextChange(e.target.value)} />
+      <div className="searchBar">
+        <input placeholder="search" className="searchBar__input" type="text" value={this.state.textInput} onKeyUp={this.handleKeyUp.bind(this)} onChange={(e) => this.handleTextChange(e.target.value)} />
       </div>
     )
   }

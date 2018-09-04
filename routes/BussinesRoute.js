@@ -177,15 +177,44 @@ Router.get('/calendar', passport.authenticate('jwt', { session: false }), (req, 
     res.send({ success: true, events: events })
 });
 
+// this is a innerjoin with 2 arrays
+const equijoin = (xs, ys, primary, foreign, sel) => {
+    const ix = xs.reduce((ix, row) => ix.set(row[primary], row), new Map);
+    return ys.map(row => sel(ix.get(row[foreign]), row));
+};
+
 Router.get('/clients', passport.authenticate('jwt', { session: false }), (req, res) => {
-    let clientsWithEvent = req.user.clients.filter(client => {
-        let now = moment();
-        for(let i=0; i<client.events.length; i++){
-            let date= moment(client.events[i].date);
-            if(date >= now) return true;    
+    // get the featured working days that have a events
+    let now = moment().format("DD/MM/YYYY");
+    let workingDays = req.user.workingDays.filter(workDay => {
+        let workDayDate = moment(workDay.date, "DD/MM/YYYY");
+        return workDay.events.length === 0 || now > workDayDate ? false : true;
+    });
+    let events = workingDays.reduce((arr, curr) => [...arr, ...curr.events], []);
+    if (events.length === 0) return res.send({ success: true, clients: [] });
+    let clientsWithEvent = req.user.clients.map(client => {
+        let obj = {};
+
+        let matchEvents = equijoin(events, client.events,
+            "id",
+            "id",
+            ({ _id, startingTime, date }, { status }) => ({ _id, startingTime, date, status }));
+        if (matchEvents.length === 0) return null;
+
+        let todayEvent = matchEvents.find(e => e.date === now);
+
+        return obj = {
+            _id: client._id,
+            name: client.name,
+            phone: client.phone,
+            avatarUrl: client.avatarUrl,
+            email: client.email,
+            events: matchEvents.length,
+            todayEvent: todayEvent ? true : false
         }
-        return false;
+
     })
+    // map eatch clients to see if the events is
     res.send({ success: true, clients: clientsWithEvent })
 
 });
@@ -289,9 +318,15 @@ Router.get('/search/:search', (req, res) => {
                 })
 
                 filter = filter.map(item => {
-                    item.workingDays = item.workingDays.filter(workDay => workDay.opendEvents.length > 0)
+                    item.workingDays = item.workingDays.filter(workDay => {
+                        return workDay.opendEvents.length > 0;
+                    })
+                    let events = item.workingDays.reduce((arr, curr) => [...arr, ...curr.opendEvents], []);
+                    if (events.length === 0) return null;
                     return item;
                 })
+
+
 
                 let newArray = filter.map(item => (
                     {

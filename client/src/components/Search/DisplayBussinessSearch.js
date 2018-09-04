@@ -32,8 +32,8 @@ class DisplayBussinessSearch extends Component {
         return (
             <div className="bussinessSearch">
                 <div>{this.props.name}</div>
-                <select onChange={this.handleChange} name="activityId">
-                    <option disabled selected hidden>Choose a activity</option>
+                <select onChange={this.handleChange} name="activityId" defaultValue="">
+                    <option value="" disabled="disabled" hidden="hidden">Choose a activity</option>
                     {this.props.activites.map(item => <DisplayActivty key={item._id} {...item} />)}
                 </select>
                 <div className="bussinessSearch__days-box">
