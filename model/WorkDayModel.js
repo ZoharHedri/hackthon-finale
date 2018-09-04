@@ -7,6 +7,7 @@ const TimeDuration = new Schema({
     timeEnd: String
 })
 
+
 const WorkDaySchema = new Schema({
     timeDuration: TimeDuration,
     date: { type: String, unique: true },
