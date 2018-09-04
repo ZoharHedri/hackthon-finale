@@ -64,7 +64,6 @@ Router.get('/events', passport.authenticate('jwt', { session: false }), (req, re
 })
 
 Router.post('/events/add/:bussinessId/:workingDayId', passport.authenticate('jwt', { session: false }), (req, res) => {
-    console.log('check');
     // save the event in the event
     let newEvent = new Event({
         activityId: req.body.activityId,
@@ -75,30 +74,29 @@ Router.post('/events/add/:bussinessId/:workingDayId', passport.authenticate('jwt
 
     newEvent.save()
         .then(event => {
-            WorkDay.findOne({ _id: req.params.workingDayId })
-                .then(workDay => {
+            //WorkDay.findOne({ _id: req.params.workingDayId })
+            //.then(workDay => {
+            Bussiness.findOne({ _id: req.params.bussinessId })
+                .then(bussiness => {
+                    let found = bussiness.clients.find(item => item._id.toString() === req.user.id);
+                    if (!found) {
+                        bussiness.clients = bussiness.clients.concat(req.user._id);
+                    }
+                    let workDay = bussiness.workingDays.find(item => item.id === req.params.workingDayId);
                     workDay.events = workDay.events.concat(event._id);
-                    workDay.save()
-                        .then(workDay => {
-                            Bussiness.findOne({ _id: req.params.bussinessId })
-                                .then(bussiness => {
-                                    let found = bussiness.clients.find(item => item._id.toString() === req.user.id);
-                                    if (!found) {
-                                        bussiness.clients = bussiness.clients.concat(req.user._id);
-                                    }
 
-                                    bussiness.save()
-                                        .then(bussiness => {
-                                            req.user.events = req.user.events.concat(event._id);
-                                            req.user.save()
-                                                .then(client => res.send({ success: true, msg: "event has been saved" }))
-                                        })
-                                })
+                    bussiness.save()
+                        .then(bussiness => {
+                            req.user.events = req.user.events.concat(event._id);
+                            req.user.save()
+                                .then(client => res.send({ success: true, msg: "event has been saved" }))
                         })
                 })
         })
-
 })
+//})
+
+
 
 Router.delete('/event/:eventId', passport.authenticate('jwt', { session: false }), (req, res) => {
     let eventId = req.params.eventId;
@@ -107,6 +105,18 @@ Router.delete('/event/:eventId', passport.authenticate('jwt', { session: false }
     evenets.splice(index, 1);
     req.user.events = evenets;
     // delete the event allso from the workDay
+    Bussiness.find({})
+        .then(bussiness => {
+            let findWorkDay = bussiness.find(item => {
+                item.workingDays.find(work => {
+                    let index = work.events.findIndex(event => event.id === events);
+                    if (index !== -1) {
+                        work.events.splice(index, 1);
+                        return true;
+                    }
+                })
+            })
+        })
     WorkDay.updateOne({ events: eventId }, { $pull: { events: eventId } })
         .then(workDayRes => {
             // if the user dosent have events then we need to delete it from all the bussiness client

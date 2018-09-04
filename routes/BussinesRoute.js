@@ -149,25 +149,28 @@ Router.post('/calendar', passport.authenticate('jwt', { session: false }), (req,
 
     for (let i = 0; i < req.body.length; i++) {
         // console.log(req.body[i].date);
-        let day = new WorkDay({
+        let day = {
             date: req.body[i].date,
             timeDuration: {
                 timeStart: req.body[i].timeStart,
                 timeEnd: req.body[i].timeEnd
             }
-        })
-        let promise = day.save()
-        promises.push(promise);
+        };
+        promises.push(day);
     }
+    req.user.workingDays = req.user.workingDays.concat(...promises);
+    req.user.save()
+        .then(bussiness => res.send({ success: true, msg: "your wark days has been saved." }))
+        .catch(err => res.send({ success: false, msg: "Somtehing went wrong, plesae try again" }))
 
-    Promise.all(promises).then(values => {
-        let ids = values.map(item => item._id);
-        req.user.workingDays = req.user.workingDays.concat(ids);
-        req.user.save()
-            .then(bussiness => res.send({ success: true, msg: "your wark days has been saved." }))
-            .catch(err => res.send({ success: false, msg: "Somtehing went wrong, plesae try again" }))
+    // Promise.all(promises).then(values => {
+    //     let ids = values.map(item => item._id);
+    //     req.user.workingDays = req.user.workingDays.concat(ids);
+    //     req.user.save()
+    //         .then(bussiness => res.send({ success: true, msg: "your wark days has been saved." }))
+    //         .catch(err => res.send({ success: false, msg: "Somtehing went wrong, plesae try again" }))
 
-    })
+    // })
 });
 
 Router.get('/calendar', passport.authenticate('jwt', { session: false }), (req, res) => {
@@ -228,15 +231,12 @@ Router.get('/search/:search', (req, res) => {
     let search = req.params.search;
     let exp = new RegExp(search, 'i');
     Bussiness.find({}).populate({
-        path: 'workingDays activites',
+        path: 'workingDays.events activites',
         populate: {
-            path: "events",
-            model: "event",
-            populate: {
-                path: "activityId",
-                model: "activity"
-            }
+            path: "activityId",
+            model: "activity"
         }
+
     })
         .then(business => {
             if (business.length === 0) {

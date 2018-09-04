@@ -3,6 +3,18 @@ const Schema = mongoose.Schema;
 const bcryptjs = require('bcryptjs');
 const conn = require('../config/conncetion');
 
+const TimeDuration = new Schema({
+    timeStart: String,
+    timeEnd: String
+})
+
+
+const WorkDaySchema = new Schema({
+    timeDuration: TimeDuration,
+    date: { type: String, unique: true },
+    breaking: [],
+    events: [{ type: Schema.Types.ObjectId, ref: 'event' }] //not working
+});
 
 const BussinessSchema = new Schema({
     name: { type: String, required: true },
@@ -12,7 +24,7 @@ const BussinessSchema = new Schema({
     password: { type: String, required: true },
     address: { type: String, required: true },
     clients: [{ type: Schema.Types.ObjectId, ref: 'client' }],
-    workingDays: [{ type: Schema.Types.ObjectId, ref: 'workDay' }],
+    workingDays: [WorkDaySchema],
     activites: [{ type: Schema.Types.ObjectId, ref: 'activity', autopopulate: true }]
 });
 
