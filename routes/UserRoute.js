@@ -104,7 +104,7 @@ Router.get('/automaticLogin', passport.authenticate("jwt", { session: false }), 
 function sendMail(name, email) {
     // creating a token that expires after 1h
     let token = jwt.sign({ email: email }, process.env.SECERT_KEY, { expiresIn: '1h' });
-    let URL = `http://localhost:3000/password/reset/${token}`;
+    let URL = `https://evening-bayou-28934.herokuapp.com/password/reset/${token}`;
     // create the mailer SERVICE
     let transporter = nodemailer.createTransport({
         host: "smtp.gmail.com",
