@@ -162,15 +162,6 @@ Router.post('/calendar', passport.authenticate('jwt', { session: false }), (req,
     req.user.save()
         .then(bussiness => res.send({ success: true, msg: "your wark days has been saved." }))
         .catch(err => res.send({ success: false, msg: "Somtehing went wrong, plesae try again" }))
-
-    // Promise.all(promises).then(values => {
-    //     let ids = values.map(item => item._id);
-    //     req.user.workingDays = req.user.workingDays.concat(ids);
-    //     req.user.save()
-    //         .then(bussiness => res.send({ success: true, msg: "your wark days has been saved." }))
-    //         .catch(err => res.send({ success: false, msg: "Somtehing went wrong, plesae try again" }))
-
-    // })
 });
 
 Router.get('/calendar', passport.authenticate('jwt', { session: false }), (req, res) => {
@@ -248,103 +239,125 @@ Router.get('/search/:search', (req, res) => {
                         return exp.test(item.name) && item.workingDays.length > 0;
                     }
                 )
-
-                filter.forEach(item => {
-                    item.workingDays = item.workingDays.filter(days => {
-                        let moment1 = moment(days.date);
-                        let moment2 = moment();
-                        let diff = moment1.diff(moment2, 'days');
-                        return diff <= 6;
-                    })
-
-                    // we find the longest activity duration
-                    let activites = item.activites.map(item => item.duration);
-                    let longActivityDuration = Math.max.apply(Math, activites);
-
-                    item.workingDays.forEach(workDay => {
-                        let opendEvents = [];
-
-                        let events = workDay.events.reduce((arr, curr) => {
-                            let time = moment().toDate();
-                            let hours = Number(curr.startingTime.split(":")[0]);
-                            let minutes = Number(curr.startingTime.split(":")[1]);
-                            time.setHours(hours);
-                            time.setMinutes(minutes);
-                            time.setSeconds(0);
-                            time = moment(time);
-                            time.add(curr.activityId.duration, 'minutes');
-                            time = time.format("HH:mm");
-                            return [...arr, { timeStart: curr.startingTime, timeEnd: time }]
-                        }, []);
-
-                        events.push(...workDay.breaking);
-
-                        events.sort((e1, e2) => {
-                            let time1 = moment(e1.timeStart, "HH:mm");
-                            let time2 = moment(e2.timeStart, "HH:mm");
-                            return time2.isBefore(time1);
-                        });
-                        let timeStart = moment(workDay.timeDuration.timeStart, "HH:mm");
-                        let timeEnd = moment(workDay.timeDuration.timeEnd, "HH:mm");
-                        for (let time = timeStart; time <= timeEnd; time.add(longActivityDuration, 'minutes')) {
-                            let timeToEnd = time.clone().add(longActivityDuration, 'minutes');
-                            let shuldBeAdded = true;
-                            // check if the time to be added is allredy in the events array
-                            for (let i = 0; i < events.length; i++) {
-                                let timeEventStart = moment(events[i].timeStart, "HH:mm");
-                                let timeEventEnd = moment(events[i].timeEnd, "HH:mm");
-                                if (time > timeEventStart && time < timeEventEnd) {
-                                    shuldBeAdded = false;
-                                    break;
-                                } else if (time <= timeEventStart && timeToEnd > timeEventStart) {
-                                    shuldBeAdded = false;
-                                    break;
-                                }
-
-                            }
-
-                            // check if shuldbeAdded is true
-                            if (shuldBeAdded) {
-                                opendEvents.push(time.format("HH:mm"))
-                            }
-
-
-                        }
-
-                        workDay.opendEvents = opendEvents;
-
-                    })
-
-                })
-
-                filter = filter.map(item => {
-                    item.workingDays = item.workingDays.filter(workDay => {
-                        return workDay.opendEvents.length > 0;
-                    })
-                    let events = item.workingDays.reduce((arr, curr) => [...arr, ...curr.opendEvents], []);
-                    if (events.length === 0) return null;
-                    return item;
-                })
-
-
-
-                let newArray = filter.map(item => (
-                    {
-                        _id: item.id,
-                        name: item.name,
-                        activites: item.activites,
-                        workingDays: item.workingDays.map(workDay => ({
-                            _id: workDay.id,
-                            opendEvents: workDay.opendEvents,
-                            date: workDay.date
-                        }))
-                    }));
-
-                res.send({ success: true, filter: newArray });
+                res.send({ success: true, filter });
             }
+        })
+})
+
+
+Router.get('/:bussinessId/activity/:activityId/events', (req, res) => {
+    let bussinessId = req.params.bussinessId;
+    let activityId = req.params.activityId;
+    Bussiness.findOne({ _id: bussinessId })
+        .populate({ path: 'activites workingDays.events', populate: { path: 'activityId', model: 'activity' } })
+        .then(filter => {
+
+            filter.workingDays = filter.workingDays.filter(days => {
+                let moment1 = days.date;
+                let moment2 = moment().format("DD/MM/YYYY");
+                // let diff = moment1.diff(moment2, 'days');
+                // return diff <= 6;
+                return moment1 >= moment2;
+            })
+            filter.workingDays = filter.workingDays.slice(0, 5);
+            // we find the longest activity duration
+            // let activites = item.activites.map(item => item.duration);
+            // let longActivityDuration = Math.max.apply(Math, activites);
+            let activity = filter.activites.find(item => item.id === activityId);
+            let longActivityDuration = activity.duration;
+
+            filter.workingDays.forEach(workDay => {
+                let opendEvents = [];
+
+                let events = workDay.events.reduce((arr, curr) => {
+                    let time = moment().toDate();
+                    let hours = Number(curr.startingTime.split(":")[0]);
+                    let minutes = Number(curr.startingTime.split(":")[1]);
+                    time.setHours(hours);
+                    time.setMinutes(minutes);
+                    time.setSeconds(0);
+                    time = moment(time);
+                    time.add(curr.activityId.duration, 'minutes');
+                    time = time.format("HH:mm");
+                    return [...arr, { timeStart: curr.startingTime, timeEnd: time }]
+                }, []);
+
+                events.push(...workDay.breaking);
+
+                events.sort((e1, e2) => {
+                    let time1 = moment(e1.timeStart, "HH:mm");
+                    let time2 = moment(e2.timeStart, "HH:mm");
+                    return time2.isBefore(time1);
+                });
+                let timeStart = moment(workDay.timeDuration.timeStart, "HH:mm");
+                let timeEnd = moment(workDay.timeDuration.timeEnd, "HH:mm");
+                let times = [];
+                // first we added the regular times from the activity
+                for (let time = timeStart; time <= timeEnd; time.add(longActivityDuration, 'minutes')) {
+                    times.push(time.format("HH:mm"));
+                }
+                let needToSort = false;
+                // then we added the end time of each event
+                for (let i = 0; i < events.length; i++) {
+                    let found = times.find(item => item === events[i].timeEnd);
+                    if (!found) {
+                        needToSort = true;
+                        times.push(events[i].timeEnd);
+                    }
+                }
+                // sort the array of times in order
+                if (needToSort) {
+                    times.sort((time1, time2) => moment(time2, "HH:mm") < moment(time1, "HH:mm"));
+                }
+                // we loop through our times and continue regular
+                for (let i = 0; i < times.length; i++) {
+                    let time = moment(times[i], "HH:mm");
+                    let timeToEnd = time.clone().add(longActivityDuration, 'minutes');
+                    let shuldBeAdded = true;
+                    // check if the time to be added is allredy in the events array
+                    for (let i = 0; i < events.length; i++) {
+                        let timeEventStart = moment(events[i].timeStart, "HH:mm");
+                        let timeEventEnd = moment(events[i].timeEnd, "HH:mm");
+                        if (time > timeEventStart && time < timeEventEnd) {
+                            shuldBeAdded = false;
+                            break;
+                        } else if (time <= timeEventStart && timeToEnd > timeEventStart) {
+                            shuldBeAdded = false;
+                            break;
+                        }
+                    }
+
+                    // check if TimeToEnd is less then the TimeEnd
+                    if (timeToEnd > timeEnd) {
+                        shuldBeAdded = false;
+                    }
+
+                    // check if shuldbeAdded is true
+                    if (shuldBeAdded) {
+                        opendEvents.push({ timeStart: time.format("HH:mm"), timeEnd: timeToEnd.format("HH:mm") })
+                    }
+
+                }
+                workDay.opendEvents = opendEvents;
+                // we now want to add also in between events
+
+            })
+
+            filter.workingDays = filter.workingDays.filter(workDay => {
+                return workDay.opendEvents.length > 0;
+            })
+            let events = filter.workingDays.reduce((arr, curr) => [...arr, ...curr.opendEvents], []);
+            if (events.length === 0) return res.send({ success: true, workingDays: [] });
+
+            workingDays = filter.workingDays.map(workDay => ({
+                _id: workDay.id,
+                opendEvents: workDay.opendEvents,
+                date: workDay.date
+            }))
+
+            res.send({ success: true, workingDays: workingDays });
 
         })
-
 })
 
 

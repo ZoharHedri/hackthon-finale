@@ -1,27 +1,79 @@
-
 .dashboard{
     margin: 80px auto;
     align-items: center;
 
-    &-type{
-        // margin: 15px , 30px;
-        width: 15px;
+    //details  component style
+    &-header{
+        margin: 10px 20px;
     }
 
-    &-price{
-        // margin: 15px , 30px;
-        width: 15px;
+    &-date{
+        font-weight: bold;
+        font-size: 25px;
+    }
+
+    &-name{
+        //with ilne (_)
+        font-size: 40px;
+        // text-decoration: underline;
+        text-decoration-line: underline;
+    }
+
+    &-address{
+        font-size: 30px;
+        
+    }
+
+    // &-phone{
+    //     text-align: left;
+    // }
+
+    // &-email{
+    //     text-align: right;
+    // }
+    
+    &-category{
+        font-family: 'Alfa Slab One';
+        font-weight: bold;
+        font-size: 40px;
+    }
+
+    &-phoneANDemail{
+        font-family: "Aguafina Script";
+        font-size: 35px;
+    }
+
+    &-details{
+        //align-items: center;
+        padding: 10px 0;
+        background: #fff;
+        border-radius: 3px;
+        padding: 10px 10px;
+        border-radius: 5px;
+        margin: 20px 20px;
+        text-align: center;
+
 
     }
-    &-startingTime{
-        // margin: 15px , 30px;
-        width: 15px;
-
+    
+    //activities component style
+    &-activities{
+        //align-items: center;
+        text-align: center;
+        padding: 10px 10px;
+        background: #fff;
+        border-radius: 5px;
+        margin: 20px 20px;
+        color: chartreuse;
+        font-size: 20px;
+        font-family: 'Lucida Sans Unicode, Arial';
+        font-weight: bold;
     }
-    &-duration{
-        // margin: 15px , 30px;
-        width: 15px;
-
+    &-values {
+        font-weight: bold;
+        color: #000;
+        margin: 0 20px;
+       
     }
 
 

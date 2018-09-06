@@ -17,15 +17,12 @@ module.exports = function (passport) {
     passport.use(new JwtStrategy(opts, function (jwt_payload, done) {
         //https://stackoverflow.com/questions/24414975/mongoose-populate-sub-sub-document
         Bussiness.findOne({ _id: jwt_payload.id }).populate({
-            path: 'workingDays clients activites',
+            path: 'workingDays.events  activites',
             populate: {
-                path: 'events',
-                populate: {
-                    path: 'activityId',
-                    model: 'activity'
-                }
+                path: 'activityId',
+                model: 'activity'
             }
-        }).exec()
+        }).populate({ path: 'clients', populate: { path: "events" } }).exec()
             .then(bussiness => {
                 if (bussiness) {
                     return done(null, bussiness);

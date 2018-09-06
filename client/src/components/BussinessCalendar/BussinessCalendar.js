@@ -39,11 +39,21 @@ class ColoredDateCellWrapper extends Component {
 @observer
 class Calendar extends Component {
   eventStyleGetter = (event, start, end, isSelected) => {
-    let backgroundColor = '#' + event.hexColor;
-    let randColor = "#" + ((1 << 24) * Math.random() | 0).toString(16);
+    let backgroundColor;
+    let fontWeight;
+    let date = moment(start).format("DD/MM/YYYY");
+    let now = moment().format("DD/MM/YYYY");
+    if (date === now) {
+      backgroundColor = '#f1c40f';
+      fontWeight = 700;
+    }
+    else {
+      backgroundColor = '#2ecc71';
+    }
     let style = {
-      backgroundColor: randColor,
+      backgroundColor: backgroundColor,
       borderRadius: '5px',
+      fontWeight: fontWeight || 400,
       opacity: 0.8,
       color: '#fff',
       border: '0px',
@@ -57,7 +67,7 @@ class Calendar extends Component {
     return <div className="calanderConteiner">
       <BigCalendar
         events={this.props.events}
-        defaultView={BigCalendar.Views.WEEK}
+        defaultView={BigCalendar.Views.MONTH}
         views={allViews}
         selectable
         eventPropGetter={this.eventStyleGetter}

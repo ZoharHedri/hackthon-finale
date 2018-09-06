@@ -1,11 +1,44 @@
+.papper_center{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 20px;
+}
+
 .bussinessSearch{
     flex: 0 0 33.3333%;
+    padding:10px;
+    &__item{
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        
+        &-name{
+            font-size: 1.8rem;
+            font-weight: 300;
+            margin-bottom: 8px;
+        }
+    }
     &__days-box{
         display: flex; 
     }
 
     &__workingDays{
         flex: 0 0 14.2857%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+       &:not(:last-child){
+           margin-right: 16px;
+       }
     }
 
+    &__date{
+        margin-bottom: 8px;
+        color: #333;
+        font-weight: 700;
+    }
 }
+

@@ -67,6 +67,8 @@ Router.post('/events/add/:bussinessId/:workingDayId', passport.authenticate('jwt
     // save the event in the event
     let newEvent = new Event({
         activityId: req.body.activityId,
+        bussinessId: req.params.bussinessId,
+        workingDayId: req.params.workingDayId,
         date: req.body.timeDate.date,
         startingTime: req.body.timeDate.startingTime,
         status: "NEW"
@@ -94,44 +96,35 @@ Router.post('/events/add/:bussinessId/:workingDayId', passport.authenticate('jwt
                 })
         })
 })
-//})
 
 
 
 Router.delete('/event/:eventId', passport.authenticate('jwt', { session: false }), (req, res) => {
     let eventId = req.params.eventId;
-    let evenets = req.user.events;
-    let index = evenets.findIndex(item => item.id === eventId)
-    evenets.splice(index, 1);
-    req.user.events = evenets;
+    let events = req.user.events;
+    let index = events.findIndex(item => item.id === eventId)
+    let eventDeleted = events.splice(index, 1)[0];
+    req.user.events = events;
     // delete the event allso from the workDay
-    Bussiness.find({})
+    Bussiness.findOne({ _id: eventDeleted.bussinessId })
+        .populate("workingDays.events clients")
         .then(bussiness => {
-            let findWorkDay = bussiness.find(item => {
-                item.workingDays.find(work => {
-                    let index = work.events.findIndex(event => event.id === events);
-                    if (index !== -1) {
-                        work.events.splice(index, 1);
-                        return true;
-                    }
-                })
-            })
-        })
-    WorkDay.updateOne({ events: eventId }, { $pull: { events: eventId } })
-        .then(workDayRes => {
-            // if the user dosent have events then we need to delete it from all the bussiness client
-            if (evenets.length === 0) {
-                Bussiness.updateMany({ clients: req.user._id }, { $pull: { clients: req.user._id } })
-                    .then(result => {
-                        req.user.save()
-                            .then(user => res.send({ success: true, msg: "event deleted" }))
-                            .catch(err => res.send({ success: false, msg: "something went worng please try again" }));
-                    })
-            } else {
-                req.user.save()
-                    .then(user => res.send({ success: true, msg: "event deleted" }))
-                    .catch(err => res.send({ success: false, msg: "something went worng please try again" }));
+            let workDay = bussiness.workingDays.find(day => day.id === eventDeleted.workingDayId);
+            let indexEvent = workDay.events.findIndex(e => e.id === eventId);
+            workDay.events.splice(indexEvent, 1);
+            if (events.length === 0) {
+                let clientIndex = bussiness.clients.findIndex(client => client.id === req.user.id);
+                bussiness.clients.splice(clientIndex, 1);
             }
+            bussiness.save()
+                .then(b => {
+                    req.user.save()
+                        .then(user => res.send({ success: true, msg: "event deleted" }))
+                        .catch(err => res.send({ success: false, msg: "something went worng please try again" }));
+                })
         })
+
 })
+
+
 module.exports = Router;

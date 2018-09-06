@@ -7,7 +7,7 @@ import DisplayClientEvent from '../DisplayClientEvent/DisplayClientEvent'
 class ClientEvents extends Component {
     render() {
         return (
-            <div>
+            <div style={{ display: "flex", flexWrap: "wrap" }}>
                 {this.props.store.clientEvents.map(item =>
                     <DisplayClientEvent key={item._id} {...item} />
                 )}

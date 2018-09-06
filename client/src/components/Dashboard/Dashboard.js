@@ -18,32 +18,39 @@ const Details = (props) => {
     // debugger;
     return (
         <div className="dashboard-details">
-            <h1 className="dashboard-h">Details Business</h1>
-            <p className="dashboard-time">{currentTime}</p>
+            <p className="dashboard-date">{currentTime}</p>
             <div>
                 {/* key={detailsOfUser.id} */}
                 <h1 className="dashboard-name">{detailsOfUser.name}</h1>
                 <h3 className="dashboard-address">{detailsOfUser.address}</h3><br />
                 <p className="dashboard-category">{detailsOfUser.category}</p><br />
-                <p className="dashboard-phoneAanEmail">{detailsOfUser.phone} ● {detailsOfUser.email}</p>
+                <p className="dashboard-phoneANDemail">
+                    {/* <span className="dashboard-phone">{detailsOfUser.phone} </span> */}
+                    {detailsOfUser.phone} ● {detailsOfUser.email}
+                    {/* <span className="dashboard-email"> {detailsOfUser.email}</span> */}
+                </p>
             </div>
         </div>
     );
 }
 
 const TodayActivities = (props) => {
-    debugger;
+    // debugger;
     console.log(props);
     return (
         <div className="dashboard-activities">
-            <div>
-                <span className="dashboard-type">type: {props.activityId.type}</span>
-                <span className="dashboard-price">price: {props.activityId.price} ₪</span>
-            </div>
-            <div>
-                <span className="dashboard-startingTime">startingTime: {props.startingTime}</span>
-                <span className="dashboard-duration">duration: {props.activityId.duration}</span>
-            </div>
+            <span className="">
+                type: <span className="dashboard-values">{props.activityId.type}</span>
+            </span>
+            <span className="">
+                price:  <span className="dashboard-values">{props.activityId.price}$</span>
+            </span>
+            <span className="">
+                startingTime: <span className="dashboard-values">{props.startingTime}</span>
+            </span>
+            <span className="">
+                duration: <span className="dashboard-values">{props.activityId.duration} min</span>
+            </span>
         </div>
     );
 }
@@ -61,6 +68,7 @@ class Dashboard extends Component {
 
     state = { user: [], eventsDay: [] };
     componentDidMount() {
+        // debugger;
         //ajax call with axios,and TOKEN
         let token = localStorage.getItem('TOKEN');
         let dashToken = {}
@@ -79,12 +87,13 @@ class Dashboard extends Component {
         // debugger;
         return (
             <div className="dashboard">
+                <h1 className="dashboard-header">Details Business</h1>
                 <Details detailsUser={this.state.user} />
                 <hr />
                 {/*activites={this.state.user.activites} */}
-                <h1 className="dashboard-today-activities">TodayActivities</h1>
+                <h1 className="dashboard-header">TodayActivities</h1>
                 {this.state.eventsDay.map(item => <TodayActivities key={item._id} {...item} />)}
-                <hr />
+                {/* <hr /> */}
                 {/* <Statistic /> */}
 
             </div>

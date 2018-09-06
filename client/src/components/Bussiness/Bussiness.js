@@ -27,7 +27,7 @@ export class Bussiness extends Component {
                 <div className="bussiness__main">
                     <header className="bussiness__header">
                         {/* className="bussiness__btn" */}
-                        <Button style={{ marginLeft: "auto", marginRight: "16px" }} variant="extendedFab" color="default" onClick={this.handleClick} >logOut</Button>
+                        <Button style={{ marginLeft: "auto", marginRight: "16px" }} variant="extendedFab" color="primary" onClick={this.handleClick} >logOut</Button>
                     </header>
                     <Route exact path="/business/dashboard" component={Dashboard} />
                     <Route exact path="/business/setting" component={Setting} />

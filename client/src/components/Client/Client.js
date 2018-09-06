@@ -6,6 +6,7 @@ import { Route, Redirect } from 'react-router-dom';
 import SearchBar from '../Search/SearchBar';
 import ClientEvents from '../ClientEvents/ClientEvents';
 import BusinessList from '../Search/BusinessList';
+import Button from '@material-ui/core/Button';
 
 @inject("store")
 @observer
@@ -26,7 +27,7 @@ class Client extends Component {
                             {this.props.store.client.avatarUrl && <img className="myclient__img" src={`/images/${this.props.store.client.avatarUrl}`} alt="user" />}
                         </div>
                         <div className="myclient__name">{this.props.store.client.name}</div>
-                        <button onClick={this.handleClick} className="myclient__btn">Sign Out</button>
+                        <Button style={{ marginLeft: "auto", marginRight: "16px" }} variant="extendedFab" color="primary" onClick={this.handleClick} >Sign Out</Button>
                     </header>
                     <Route exact path="/client/search" component={SearchBar} />
                     <Route exact path="/client/search" component={BusinessList} />

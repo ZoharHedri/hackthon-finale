@@ -443,7 +443,6 @@ class Store {
 
 
     @action updateBusinessArr(filter) {
-        debugger;
         this.business = filter;
     }
 

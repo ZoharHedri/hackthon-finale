@@ -1,14 +1,15 @@
 .searchBar{
     display: flex;
     justify-content: center;
+    margin-bottom: 32px;
 
     &__input{
         border-radius: 100px;
-        border: none;
-        background: #333;
-        padding: 5px 15px;
-        font-size: 1.6rem;
-        color: #fff;
+        border: 1px solid rgba($color: #b2bec3, $alpha: .99);
+        // background: #cd84f1;
+        padding: 10px 15px;
+        font-size: 1.4rem;
+        color: #636e72;
         &:focus{
             outline: none;
         }
@@ -16,6 +17,8 @@
     }
 
     &__input::-webkit-input-placeholder {
-        color: #fff;
+        color: #636e72;
+        font-family: 'Roboto', sans-serif;
+        font-weight: 300;
     }
 }
