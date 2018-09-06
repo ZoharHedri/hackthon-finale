@@ -80,14 +80,27 @@ Router.post('/password/reset/:token', (req, res) => {
         Bussiness.findOne({ email: data.email })
             .then(bussiness => {
                 if (!bussiness) {
-                    return res.send({ success: false, msg: "email address is not found!" })
+                    Client.findOne({ email: data.email })
+                        .then(client => {
+                            if (!client) {
+                                return res.send({ success: false, msg: "email address is not found!" })
+                            } else {
+                                client.password = req.body.password;
+                                client.save()
+                                    .then(savedClient => {
+                                        res.send({ success: true, msg: "your password has been changed.." })
+                                    })
+                                    .catch(err => res.send({ success: false, msg: `${err}` }));
+                            }
+                        })
+                } else {
+                    bussiness.password = req.body.password;
+                    bussiness.save()
+                        .then(savedBussiness => {
+                            res.send({ success: true, msg: "your password has been changed.." })
+                        })
+                        .catch(err => res.send({ success: false, msg: `${err}` }));
                 }
-                bussiness.password = req.body.password;
-                bussiness.save()
-                    .then(savedBussiness => {
-                        res.send({ success: true, msg: "your password has been changed.." })
-                    })
-                    .catch(err => res.send({ success: false, msg: `${err}` }));
             })
             .catch(err => res.send({ success: false, msg: `${err}` }));
     }
