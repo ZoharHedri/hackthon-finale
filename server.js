@@ -53,6 +53,9 @@ const DashboardRoute = require('./routes/DashboardRoute');
 
 const app = express();
 
+// Serve static files from the React app
+app.use(express.static(path.join(__dirname, 'client/build')));
+
 // body parser middleware
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
