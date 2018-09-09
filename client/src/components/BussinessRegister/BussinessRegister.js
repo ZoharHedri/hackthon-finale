@@ -12,7 +12,7 @@ import ErrorList from '../ErrorList/ErrorList';
     isExists: allStore.store.isExists,
     _clearErrors: allStore.store._clearErrors,
     _clearMessage: allStore.store._clearMessage,
-    message: allStore.store.message
+    message: allStore.store.message,
 }))
 @observer
 class BussinessRegister extends Component {
@@ -28,7 +28,7 @@ class BussinessRegister extends Component {
 
     handleKeyUpEmail = debounce(() => {
         this.props.isExists("bussiness");
-    }, 500);
+    }, 1000);
 
     componentWillUnmount() {
         this.handleKeyUpEmail.cancel();
@@ -59,19 +59,19 @@ class BussinessRegister extends Component {
                         <div className="register__input-group">
                             <span className="register__label" >Email</span>
                             <div className="register__input-msg-group">
-                                <input required className="register__input" onKeyUp={this.handleKeyUpEmail} onChange={this.handleChange} name="email" type="email" placeholder="email" value={this.props.registerForm.email} />
+                                <input autoComplete="username" required className="register__input" onKeyUp={this.handleKeyUpEmail} onChange={this.handleChange} name="email" type="email" placeholder="email" value={this.props.registerForm.email} />
                                 {this.props.message && <Message className="register__msg" message={this.props.message} />}
                                 <div className="register__valid"></div>
                             </div>
                         </div>
                         <div className="register__input-group">
                             <span className="register__label" >Password</span>
-                            <input required className="register__input" onChange={this.handleChange} name="password" type="password" placeholder="password" value={this.props.registerForm.password} />
+                            <input autoComplete="new-password" required className="register__input" onChange={this.handleChange} name="password" type="password" placeholder="password" value={this.props.registerForm.password} />
                             <div className="register__valid"></div>
                         </div>
                         <div className="register__input-group">
                             <span className="register__label" >Confirm Password</span>
-                            <input required className="register__input" onChange={this.handleChange} name="confirmPassword" type="password" placeholder="retype password" value={this.props.registerForm.confirmPassword} />
+                            <input autoComplete="new-password" required className="register__input" onChange={this.handleChange} name="confirmPassword" type="password" placeholder="retype password" value={this.props.registerForm.confirmPassword} />
                             <div className="register__valid"></div>
                         </div>
                         <div className="register__input-group">

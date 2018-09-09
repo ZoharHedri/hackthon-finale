@@ -5,10 +5,11 @@ import './ClientEventForm.scss'
 @inject("store")
 @observer
 class ClientEventForm extends Component {
-    handleClick = () => {
+    handleClick = async () => {
         this.props.store.setCientEventForm({ date: this.props.date, startingTime: this.props.event.timeStart });
         // ajax call to server to save event
-        this.props.store.saveEventForClient(this.props.bussinessId, this.props.workingDayId);
+        await this.props.store.saveEventForClient(this.props.bussinessId, this.props.workingDayId);
+        this.props.getOpendEventForActivity();
     }
     render() {
         return (

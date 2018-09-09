@@ -7,34 +7,29 @@ const Client = require('../model/ClientsModel');
 const passport = require("passport");
 
 // if a user can login then we can send him a token
-Router.post('/login', (req, res) => {
-    Bussiness.findOne({ email: req.body.email })
-        .then(user => {
-            if (!user) {
-                // cheking if the email is belong to the client's in clients model
-                Client.findOne({ email: req.body.email })
-                    .then(client => {
-                        if (!client) return res.json({ success: false, msg: "Invalid Username or Password" });
-                        if (client.password === req.body.password) {
-                            let token = jwt.sign({ id: client.id }, process.env.SECERT_KEY);
-                            return res.json({ success: true, user: 'client', token: 'JWT ' + token })
-                        } else {
-                            return res.json({ success: false, msg: "Invalid Username or Password" });
-                        }
-                    })
-                    .catch(err => res.send({ success: false, msg: `${err}` }));
-                return;
-            }
+Router.post('/login', async (req, res) => {
+    try {
+        let user = await Bussiness.findOne({ email: req.body.email });
+        if (!user) {
+            let client = await Client.findOne({ email: req.body.email });
+            if (!client) return res.json({ success: false, msg: "Invalid Username or Password" });
+            client.comparePassword(req.body.password, function (err, isMatch) {
+                if (isMatch && !err) {
+                    let token = jwt.sign({ id: client.id }, process.env.SECERT_KEY);
+                    return res.json({ success: true, user: 'client', token: 'JWT ' + token })
+                }
+                return res.json({ success: false, msg: "Invalid Username or Password" });
+            })
+        } else {
             user.comparePassword(req.body.password, function (err, isMatch) {
                 if (isMatch && !err) {
-                    // we creating the token
                     let token = jwt.sign({ id: user.id }, process.env.SECERT_KEY);
                     return res.json({ success: true, user: 'business', token: 'JWT ' + token })
                 }
                 return res.json({ success: false, msg: "Invalid Username or Password" });
             })
-        })
-        .catch(err => res.json({ success: false, msg: `Something went wrong, please try again` }));
+        }
+    } catch (err) { res.json({ success: false, msg: `Something went wrong, please try again` }) };
 })
 
 
@@ -43,11 +38,7 @@ Router.post('/password/forgot', (req, res) => {
     req.check('email', 'Email is required').notEmpty();
     let errors = req.validationErrors();
     if (errors) {
-        errors = errors.reduce((arr, curr) => {
-            arr.push(curr.msg);
-            return arr;
-        }, [])
-        return res.status(400).send({ success: false, errors: errors });
+        throw errors;
     }
     Bussiness.findOne({ email: req.body.email })
         .then(bussiness => {

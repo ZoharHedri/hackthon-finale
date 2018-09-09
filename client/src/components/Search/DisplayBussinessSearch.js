@@ -12,7 +12,7 @@ const DisplayWorkingDay = (props) => {
     return (
         <div style={{ backgroundColor: now === props.date ? "rgba(224, 86, 253, .2)" : "#fff", borderRadius: "5px" }} className="bussinessSearch__workingDays">
             <div className="bussinessSearch__date">{props.date}</div>
-            {props.opendEvents.map((event, index) => <ClientEventForm key={index} date={props.date} event={event} bussinessId={props.bussinessId} workingDayId={props._id} />)}
+            {props.opendEvents.map(event => <ClientEventForm getOpendEventForActivity={props.getOpendEventForActivity} key={event._id} date={props.date} event={event} bussinessId={props.bussinessId} workingDayId={props._id} />)}
         </div>
     )
 };
@@ -29,20 +29,27 @@ const DisplayActivty = (props) => {
 @observer
 class DisplayBussinessSearch extends Component {
     state = {
-        workingDays: [],
+        // workingDays: [],
+        activityId: "",
         open: false
     }
-    handleChange = event => {
+    handleChange = async (event) => {
+        event.persist();
+        // await this.setState({ activityId: event.target.value });
+        this.props.store.activityId = event.target.value;
         this.props.store.setCientEventForm({ key: event.target.name, value: event.target.value })
         this.getOpendEventForActivity(event.target.value);
     }
-    getOpendEventForActivity = (activityId) => {
+
+    getOpendEventForActivity = (/*activityId*/) => {
         let token = localStorage.getItem('TOKEN');
         let opts = {}
         opts.headers = { Authorization: token }
-        axios.get(`/bussiness/${this.props._id}/activity/${activityId}/events`, opts)
-            .then(res => this.setState({ workingDays: res.data.workingDays, open: true }));
+        axios.get(`/bussiness/${this.props._id}/activity/${this.props.store.activityId}/events`, opts)
+            // .then(res => this.setState({ workingDays: res.data.workingDays, open: true }));
+            .then(res => this.setState({ open: true }));
     }
+
     handleClose = () => {
         this.setState({ open: false });
     }
@@ -65,7 +72,7 @@ class DisplayBussinessSearch extends Component {
                 >
                     <Papper className="papper_center">
                         <div className="bussinessSearch__days-box">
-                            {this.state.workingDays.map(item => <DisplayWorkingDay key={item._id} {...item} activites={this.props.activites} opendEvents={item.opendEvents} bussinessId={this.props._id} />)}
+                            {this.props.store.workingDays.map(item => <DisplayWorkingDay getOpendEventForActivity={this.getOpendEventForActivity} key={item._id} {...item} activites={this.props.activites} opendEvents={item.opendEvents} bussinessId={this.props._id} />)}
                         </div>
                     </Papper>
                 </Modal>

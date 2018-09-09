@@ -68,19 +68,17 @@ class Setting extends Component {
                             </div>
                             <div className="setting__item">
                                 <span className="setting__title">email</span>
-                                <input className="setting__input" onChange={this.handleChange} name="email" type="text" value={this.props.store.getSetting.email} />
+                                <input autoComplete="username" className="setting__input" onChange={this.handleChange} name="email" type="text" value={this.props.store.getSetting.email} />
                             </div>
                             <div className="setting__item">
                                 <span className="setting__title">address</span>
-                                <input className="setting__input" onChange={this.handleChange} name="address" type="text" value={this.props.store.getSetting.address} />
+                                <input autoComplete="address" className="setting__input" onChange={this.handleChange} name="address" type="text" value={this.props.store.getSetting.address} />
                             </div>
                             <div className="setting__item">
                                 <span className="setting__title">category</span>
                                 <input disabled="disabled" className="setting__input" onChange={this.handleChange} name="category" type="select" value={this.props.store.getSetting.category} />
                             </div>
-                            {/* <input onChange={this.handleChange} name="oldPassword" type="password" value={this.props.store.getSetting.oldPassword} />
-                    <input onChange={this.handleChange} name="password" type="password" value={this.props.store.getSetting.password} />
-                    <input onChange={this.handleChange} name="confirmPassword" type="password" value={this.props.store.getSetting.confirmPassword} /> */}
+
                         </div>
                         <div className="setting__divider" ></div>
                         <div className="setting__header">
@@ -89,15 +87,15 @@ class Setting extends Component {
                         <div className="setting__group">
                             <div className="setting__item">
                                 <span className="setting__title">Old Password</span>
-                                <input className="setting__input" onChange={this.handleChange} name="oldPassword" type="password" value={this.props.store.getSetting.oldPassword} />
+                                <input autoComplete="current-password" className="setting__input" onChange={this.handleChange} name="oldPassword" type="password" value={this.props.store.getSetting.oldPassword} />
                             </div>
                             <div className="setting__item">
                                 <span className="setting__title">New Password</span>
-                                <input className="setting__input" onChange={this.handleChange} name="password" type="password" value={this.props.store.getSetting.password} />
+                                <input autoComplete="new-password" className="setting__input" onChange={this.handleChange} name="password" type="password" value={this.props.store.getSetting.password} />
                             </div>
                             <div className="setting__item">
                                 <span className="setting__title">Confirm Password</span>
-                                <input className="setting__input" onChange={this.handleChange} name="confirmPassword" type="password" value={this.props.store.getSetting.confirmPassword} />
+                                <input autoComplete="new-password" className="setting__input" onChange={this.handleChange} name="confirmPassword" type="password" value={this.props.store.getSetting.confirmPassword} />
                             </div>
                             <button onClick={this.handleClick} type="button" className="setting__btn" style={{ marginLeft: "16px", background: "linear-gradient(to bottom, #06C5EE, #0067D3)" }}>Change</button>
                         </div>

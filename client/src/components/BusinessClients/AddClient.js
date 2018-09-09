@@ -22,11 +22,11 @@ class AddClient extends Component {
     // Prevent the default behavior of the page (refresh)-using in forms
     event.preventDefault();
     this.props.store.registerClient();
-
   }
+
   handleKeyUpEmail = debounce(() => {
     this.props.store.isExists("client");
-  }, 500);
+  }, 1000);
 
   componentWillUnmount() {
     this.handleKeyUpEmail.cancel();
@@ -58,19 +58,19 @@ class AddClient extends Component {
             <div className="register__input-group">
               <span className="register__label" >Email</span>
               <div className="register__input-msg-group">
-                <input required className="register__input" onKeyUp={this.handleKeyUpEmail} onChange={this.handleChange} name="email" type="email" placeholder="email" />
+                <input autoComplete="username" required className="register__input" onKeyUp={this.handleKeyUpEmail} onChange={this.handleChange} name="email" type="email" placeholder="email" />
                 {this.props.store.message && <Message className="register__msg" message={this.props.store.message} />}
                 <div className="register__valid"></div>
               </div>
             </div>
             <div className="register__input-group">
               <span className="register__label" >Password</span>
-              <input required className="register__input" onChange={this.handleChange} name="password" type="password" placeholder="password" />
+              <input autoComplete="new-password" required className="register__input" onChange={this.handleChange} name="password" type="password" placeholder="password" />
               <div className="register__valid"></div>
             </div>
             <div className="register__input-group">
               <span className="register__label" >Confirm Password</span>
-              <input required className="register__input" onChange={this.handleChange} name="confirmPassword" type="password" placeholder="retype password" />
+              <input autoComplete="new-password" required className="register__input" onChange={this.handleChange} name="confirmPassword" type="password" placeholder="retype password" />
               <div className="register__valid"></div>
             </div>
             <div className="register__input-group">

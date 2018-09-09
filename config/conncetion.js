@@ -1,4 +1,5 @@
-const mongoose = require('mongoose')
-const conn = mongoose.createConnection(`mongodb://${process.env.DB_USER}:${process.env.DB_PASS}@ds125862.mlab.com:25862/hackton_db`);
+const mongoose = require('mongoose');
+mongoose.Promise = global.Promise;
+const conn = mongoose.createConnection(process.env.DB_HOST, { autoIndex: false, user: process.env.DB_USER, pass: process.env.DB_PASS, useNewUrlParser: true });
 
 module.exports = conn;

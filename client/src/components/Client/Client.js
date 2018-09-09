@@ -24,7 +24,7 @@ class Client extends Component {
                 <div className="myclient__main">
                     <header className="myclient__header">
                         <div className="myclient__img-box">
-                            {this.props.store.client.avatarUrl && <img className="myclient__img" src={`/images/${this.props.store.client.avatarUrl}`} alt="user" />}
+                            {this.props.store.client.avatarUrl && <img className="myclient__img" src={`/clients/images/${this.props.store.client.avatarUrl}`} alt="user" />}
                         </div>
                         <div className="myclient__name">{this.props.store.client.name}</div>
                         <Button style={{ marginLeft: "auto", marginRight: "16px" }} variant="extendedFab" color="primary" onClick={this.handleClick} >Sign Out</Button>

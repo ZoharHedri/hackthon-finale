@@ -1,11 +1,25 @@
 import { observable, action, computed } from 'mobx';
 import axios from 'axios';
 import moment from 'moment';
-// TODO: here we will handle all of our states
-class Store {
-    @observable errors = [];
+import Pusher from 'pusher-js';
 
-    @observable activities = [];
+// Enable pusher logging - don't include this in production
+Pusher.logToConsole = true;
+class Store {
+
+    constructor() {
+        this.pusher = new Pusher('c5026332b4de2d5a6839', {
+            cluster: 'ap2',
+            forceTLS: true
+        });
+        this.channelBussiness = this.pusher.subscribe('bussiness');
+        this.channelBussiness.bind('get-events', (data) => {
+            // console.log('pusehr-data', data);
+            if (this.activityId === data.activityId)
+                this.workingDays = data.workingDays;
+            // this.open = true;
+        })
+    }
 
     @observable registerBussinessForm = {
         name: "",
@@ -41,26 +55,6 @@ class Store {
         email: ""
     }
 
-    @observable resetPasswordForm = {
-        password: "",
-        passwordConfirm: ""
-    }
-
-    @observable userStatus = {
-        loggedIn: false,
-        userModel: ""
-    }
-
-    @observable clients = [];
-    @observable clientEvents = [];
-
-    @observable message = null;
-
-    @observable business = [];
-
-    @observable events = [];
-
-
     @observable clientEventForm = {
         activityId: "",
         timeDate: {
@@ -70,13 +64,38 @@ class Store {
         status: ""
     }
 
-    @action removeActivity = (activity_id) => {
-        let token = localStorage.getItem('TOKEN');
-        let options = {};
-        options.headers = { "Authorization": token };
-        axios.delete(`/activities/delete/${activity_id}`, options)
-            .then(res => console.log(res))
-            .catch(err => console.log(err))
+    @observable resetPasswordForm = {
+        password: "",
+        passwordConfirm: ""
+    }
+
+    @observable userStatus = {
+        loggedIn: false,
+        userModel: ""
+    }
+    @observable business = [];
+    @observable clients = [];
+    @observable events = [];
+    @observable activities = [];
+
+    @observable client = {};
+    @observable clientEvents = [];
+
+    @observable message = null;
+    @observable errors = [];
+    @observable workingDays = [];
+    // @observable open = false;
+
+    token = localStorage.getItem('TOKEN');
+    options = { headers: { "Authorization": this.token } };
+
+
+
+    @action removeActivity = async (activity_id) => {
+        try {
+            let res = await axios.delete(`/activities/delete/${activity_id}`, this.options);
+            console.log(res.data);
+        } catch (err) { console.log(err) };
     }
 
     @action setCientEventForm = (obj) => {
@@ -91,58 +110,43 @@ class Store {
         }
     }
 
-    @action saveEventForClient(bussinessId, workingDayId) {
-        let token = localStorage.getItem('TOKEN');
-        let options = {};
-        options.headers = { "Authorization": token };
-        axios.post(`/clients/events/add/${bussinessId}/${workingDayId}`, this.clientEventForm, options)
-            .then(res => {
-                // we need to fire upp some thing
-                this.getClientEvents();
-            })
+    activityId = "";
+
+    @action saveEventForClient = async (bussinessId, workingDayId) => {
+        try {
+            await axios.post(`/clients/events/add/${bussinessId}/${workingDayId}`, this.clientEventForm, this.options);
+            this.getClientEvents();
+        } catch (err) { console.log(err) };
     }
 
     @action setActivityForm = (obj) => {
         this.activityForm[obj.key] = obj.value;
     }
 
-    @action addActivity = () => {
-        let token = localStorage.getItem('TOKEN');
-        let options = {};
-        options.headers = { "Authorization": token };
-        let activits = this.activityForm;
-        axios.post('/activities/addActivity', activits, options)
-            .then(res => {
-                console.log(res.data)
-            })
-            .catch(err => { console.log(err) })
+    @action addActivity = async () => {
+        try {
+            let activits = this.activityForm;
+            let res = await axios.post('/activities/addActivity', activits, this.options);
+            console.log(res.data)
+        } catch (err) { console.log(err) };
     }
 
-    @observable client = {};
 
-    @action getClientEvents = () => {
-        let token = localStorage.getItem('TOKEN');
-        let options = {};
-        options.headers = { "Authorization": token };
-        axios.get('/clients/events', options)
-            .then(res => {
-                this.client = res.data.client;
-                this.clientEvents = res.data.events;
-            })
-            .catch(err => console.log(err))
+    @action getClientEvents = async () => {
+        try {
+            let res = await axios.get('/clients/events', this.options);
+            this.client = res.data.client;
+            this.clientEvents = res.data.events;
+        } catch (err) { console.log(err) };
     }
 
-    @action removeEventById = (eventId) => {
-        let token = localStorage.getItem('TOKEN');
-        let options = {};
-        options.headers = { "Authorization": token };
-        axios.delete(`/clients/event/${eventId}`, options)
-            .then(res => {
-                if (res.data.success) {
-                    this.getClientEvents();
-                }
-            })
-            .catch(err => console.log(err));
+    @action removeEventById = async (eventId) => {
+        try {
+            let res = await axios.delete(`/clients/event/${eventId}`, this.options);
+            if (res.data.success) {
+                this.getClientEvents();
+            }
+        } catch (err) { console.log(err) };
     }
 
 
@@ -152,44 +156,33 @@ class Store {
         return this.registerBussinessForm;
     }
 
-    @action getSettingApi = () => {
-        let token = localStorage.getItem("TOKEN");
-        let opts = {};
-        opts.headers = { Authorization: token };
-        axios.get('/bussiness/setting', opts)
-            .then(res => {
-                this.registerBussinessForm = res.data.info;
-            })
-            .catch(err => console.log(err));
+    @action getSettingApi = async () => {
+        try {
+            let res = await axios.get('/bussiness/setting', this.options);
+            this.registerBussinessForm = res.data.info;
+        } catch (err) { console.log(err) };
     }
 
     @action _setErrors = (errors) => {
-        debugger;
         this.errors = errors;
     }
 
 
 
-    @action automaticLogin = () => {
-        let token = localStorage.getItem("TOKEN");
-        if (token) {
-            let opts = {};
-            opts.headers = { Authorization: token };
-            let current = this;
-            axios.get('/users/automaticLogin', opts)
-                .then(res => {
-                    if (res.data.success) {
-                        let user = {
-                            loggedIn: true,
-                            userModel: res.data.user === 'business' ? res.data.user + "/dashboard" : res.data.user + '/search'
-                        }
-                        current.userStatus = user;
-                    }
-                })
-                .catch(err => {
-                    current.userStatus.loggedIn = false;
-                    console.log(err);
-                });
+    @action automaticLogin = async () => {
+        try {
+            if (!this.token) return;
+            let res = await axios.get('/users/automaticLogin', this.options);
+            if (res.data.success) {
+                let user = {
+                    loggedIn: true,
+                    userModel: res.data.user === 'business' ? res.data.user + "/dashboard" : res.data.user + '/search'
+                }
+                this.userStatus = user;
+            }
+        }
+        catch (err) {
+            this.userStatus.loggedIn = false;
         }
     }
 
@@ -202,92 +195,97 @@ class Store {
         this.forgotPasswordForm[obj.key] = obj.value;
     }
 
-
-
-    // @observable business = [];
-
-    @action isExists = (user) => {
-        if (user === "bussiness") {
-            if (this.registerBussinessForm.email === "") {
-                this.message = null;
+    @action isExists = async (user) => {
+        try {
+            if (user === "bussiness") {
+                if (this.registerBussinessForm.email === "") {
+                    this.message = null;
+                    return;
+                }
+                let res = await axios.post('/bussiness/isExists', { email: this.registerBussinessForm.email })
+                this.message = res.data.msg;
                 return;
             }
-            axios.post('/bussiness/isExists', { email: this.registerBussinessForm.email })
-                .then(res => {
-                    this.message = res.data.msg;
-                })
-                .catch(err => console.log(err.msg));
-        } else if (user === "client") {
             if (this.registerClientForm.email === "") {
                 this.message = null;
                 return;
             }
-            axios.post('/clients/isExists', { email: this.registerClientForm.email })
-                .then(res => {
-                    this.message = res.data.msg;
-                })
-                .catch(err => console.log(err.msg));
-        }
+            let res = await axios.post('/clients/isExists', { email: this.registerClientForm.email })
+            this.message = res.data.msg;
+        } catch (err) { console.log(err.msg) };
     }
 
     @action setRegisterBussinessForm = (obj) => {
         this.registerBussinessForm[obj.key] = obj.value;
     }
 
+    @action clearRegisterBussinessForm = () => {
+        this.registerBussinessForm.name = "";
+        this.registerBussinessForm.email = "";
+        this.registerBussinessForm.address = "";
+        this.registerBussinessForm.category = "";
+        this.registerBussinessForm.confirmPassword = "";
+        this.registerBussinessForm.oldPassword = "";
+        this.registerBussinessForm.password = "";
+        this.registerBussinessForm.phone = "";
+    }
+
     @action setLoginForm = (obj) => {
         this.loginForm[obj.key] = obj.value;
     }
 
-    // register to database
-    @action registerBussiness = () => {
-        axios.post('/bussiness/register', this.registerBussinessForm)
-            .then(res => {
-                if (res.data.success) {
-                    console.log(res.data)
-                } else {
-                    this.errors = res.data.errors;
-                }
-            })
-            .catch(err => console.log(err.msg));
+    @action clearLoginForm = () => {
+        this.loginForm.email = "";
+        this.loginForm.password = "";
     }
 
-    @action registerClient = () => {
-        let fd = new FormData();
-        for (let key in this.registerClientForm) {
-            fd.append(key, this.registerClientForm[key])
-        }
-        let opts = {};
-        opts.headers = { contentType: "multipart/form-data" };
-        axios.post('/clients/register', fd, opts)
-            .then(res => {
-                if (res.data.success) {
-                    console.log(res.data)
-                } else {
-                    this.errors = res.data.errors;
-                }
-            })
-            .catch(err => console.log(err.msg));
+
+    // register bussiness to database
+    @action registerBussiness = async () => {
+        let res = await axios.post('/bussiness/register', this.registerBussinessForm);
+        if (!res.data.success) this.errors = res.data.errors;
+        this.clearRegisterBussinessForm();
+    }
+
+    // register client to database
+    @action registerClient = async () => {
+        try {
+            let fd = new FormData();
+            for (let key in this.registerClientForm) {
+                fd.append(key, this.registerClientForm[key])
+            }
+            let opts = { headers: { 'Content-Type': 'multipart/form-data' } };
+            let res = await axios.post('/clients/register', fd, opts)
+            if (res.data.success) {
+                return res.data.success;
+            } else {
+                this.errors = res.data.errors;
+            }
+        } catch (err) { console.log(err.msg) };
     }
 
     //login to a database using email - BUSSINESS or CLIENT return
-    @action login = () => {
-        axios.post('/users/login', this.loginForm)
-            .then(res => {
-                if (res.data.success) {
-                    // we saved the token from the server in localstorage
-                    localStorage.setItem('TOKEN', res.data.token);
-                    let user = {
-                        loggedIn: true,
-                        userModel: res.data.user === 'business' ? res.data.user + "/dashboard" : res.data.user + '/search'
-                    }
-                    this.userStatus = user;
-                    this._clearErrors();
-                } else {
-                    this.loggedIn = false;
-                    this._addError(res.data.msg);
+    @action login = async () => {
+        try {
+            let res = await axios.post('/users/login', this.loginForm)
+            if (res.data.success) {
+                // we saved the token from the server in localstorage
+                localStorage.setItem('TOKEN', res.data.token);
+                this.token = res.data.token;
+                this.options = { headers: { "Authorization": this.token } };
+                let user = {
+                    loggedIn: true,
+                    userModel: res.data.user === 'business' ? res.data.user + "/dashboard" : res.data.user + '/search'
                 }
-            })
-            .catch(err => this._addError(err.msg));
+                this.userStatus = user;
+                this._clearErrors();
+            } else {
+                this.loggedIn = false;
+                this._addError(res.data.msg);
+            }
+            this.clearLoginForm();
+
+        } catch (err) { this._addError(err.msg) };
     }
 
 
@@ -295,23 +293,20 @@ class Store {
         this.registerClientForm[obj.key] = obj.value;
     }
 
-    @action getClients() {
-        let token = localStorage.getItem('TOKEN');
-        let opts = {}
-        opts.headers = { Authorization: token }
-        //go to '/bussiness' -> Router.get('/clients'...)
-        axios.get('/bussiness/clients', opts)
-            .then(res => {
-                this.clients = res.data.clients;
-                this._clearErrors();
-            })
-            .catch(err => {
-                this._addError(err.msg);
-            });
+    @action getClients = async () => {
+        try {
+            let res = await axios.get('/bussiness/clients', this.options);
+            this.clients = res.data.clients;
+            this._clearErrors();
+        } catch (err) {
+            this._addError(err.msg);
+        };
     }
 
     @action logout = () => {
         localStorage.removeItem("TOKEN");
+        this.token = null;
+        this.options = { headers: { "Authorization": this.token } };
         let user = {
             loggedIn: false,
             userModel: ""
@@ -323,35 +318,29 @@ class Store {
         this.message = "";
     }
 
-    @action forgot = () => {
-        axios.post('/users/password/forgot', this.forgotPasswordForm)
-            .then(res => {
-                if (res.data.success) {
-                    this._clearErrors();
-                } else {
-                    this._addError(res.data.msg);
-                }
-            })
-            .catch(err => this.errors = err.response.data.errors);
+    @action forgot = async () => {
+        try {
+            let res = await axios.post('/users/password/forgot', this.forgotPasswordForm);
+            if (res.data.success) {
+                this._clearErrors();
+            } else {
+                this._addError(res.data.msg);
+            }
+        } catch (err) { this.errors = err.response.data.errors };
     }
 
-    @action resetPassword = (token) => {
-        axios.post('/users/password/reset/' + token, { password: this.resetPasswordForm.password })
-            .then(res => console.log(res.data))
-            .catch(err => console.log(`${err}`));
+    @action resetPassword = async (token) => {
+        try {
+            let res = await axios.post('/users/password/reset/' + token, { password: this.resetPasswordForm.password });
+            console.log(res.data);
+        } catch (err) { console.log(`${err}`) };
     }
 
-    @action getActivities = () => {
-        let token = localStorage.getItem('TOKEN');
-        let options = {};
-        options.headers = { "Authorization": token };
-        let current = this;
-        axios.get('/activities', options)
-            .then(res => {
-                current.activities = res.data.activites
-                console.log(res.data)
-            })
-            .catch(err => { console.log(err) })
+    @action getActivities = async () => {
+        try {
+            let res = await axios.get('/activities', this.options)
+            this.activities = res.data.activites
+        } catch (err) { console.log(err) };
     }
 
     _addError = (message) => {
@@ -370,8 +359,8 @@ class Store {
 
 
     @observable bussinessCalendar = {
-        startPeriod: moment().format("DD/MM/YYYY"),
-        endPeriod: moment().format("DD/MM/YYYY"),
+        startPeriod: moment().startOf('month').format("YYYY-MM-DD"),
+        endPeriod: moment().endOf('month').format("YYYY-MM-DD"),
         workDays: [
             { day: "weekday-sun", flag: false, statrTime: '', endTime: '' },
             { day: "weekday-mon", flag: false, statrTime: '', endTime: '' },
@@ -385,60 +374,49 @@ class Store {
 
     @action setBussinessCalendar = (obj) => {
         this.bussinessCalendar[obj.key] = obj.value;
-        console.log('setBussinessCalendar chaged..');
     }
 
 
     @action setBussinessCalendarDay = (dayName) => {
         let findDay = this.bussinessCalendar.workDays.find(item => dayName === item.day);
         findDay.flag = !findDay.flag;
-
     }
 
 
     @action setBussinessCalendarDayTime = (obj) => {
-        // let findDay = this.bussinessCalendar.workDays.find(item => dayName === item.day);
         this.bussinessCalendar.workDays[0][obj.key] = obj.value;
-
-        console.log('setBussinessCalendarDayTime chaged..');
     }
 
 
 
-    @action setBussinessCalendarWorkDays = (periodWorkDays) => {
-
-        let token = localStorage.getItem('TOKEN');
-        let opts = {}
-        opts.headers = { Authorization: token }
-        axios.post('/bussiness/calendar/', periodWorkDays, opts)
-            .then(res => console.log(res.data))
-            .catch(err => console.log(err.msg));
+    @action setBussinessCalendarWorkDays = async (periodWorkDays) => {
+        try {
+            let res = await axios.post('/bussiness/calendar/', periodWorkDays, this.options)
+            console.log(res.data);
+        } catch (err) { console.log(err.msg) };
     }
 
 
-    _getBussinessEvents() {
-        let token = localStorage.getItem('TOKEN');
-        let opts = {}
-        opts.headers = { Authorization: token }
-        axios.get('/bussiness/calendar', opts)
-            .then(res => {
-                let mapped = res.data.events.map(item => {
-                    let start = moment(item.date, "DD/MM/YYYY");
-                    start.add(Number(item.startingTime.split(":")[0]), 'hours');
-                    start.add(Number(item.startingTime.split(":")[1]), 'minutes');
-                    let end = start.clone();
-                    end.add(item.activityId.duration, 'minutes');
-                    let obj = {
-                        id: item._id,
-                        title: item.activityId.type,
-                        start: start.toDate(),
-                        end: end.toDate()
-                    }
-                    return obj;
-                });
-                this.events = mapped;
-            })
-            .catch(err => console.log(err.msg));
+    _getBussinessEvents = async () => {
+        try {
+            let res = await axios.get('/bussiness/calendar', this.options);
+            let mapped = res.data.events.map(item => {
+                let start = moment(item.date, "DD/MM/YYYY");
+                start.add(Number(item.startingTime.split(":")[0]), 'hours');
+                start.add(Number(item.startingTime.split(":")[1]), 'minutes');
+                let end = start.clone();
+                end.add(item.activityId.duration, 'minutes');
+                let obj = {
+                    id: item._id,
+                    title: item.activityId.type,
+                    start: start.toDate(),
+                    end: end.toDate()
+                }
+                return obj;
+            });
+            this.events = mapped;
+        }
+        catch (err) { console.log(err.msg) };
     }
 
 

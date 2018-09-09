@@ -37,13 +37,13 @@ class Login extends Component {
                             <svg className="login__icon">
                                 <use xlinkHref="/sprite.svg#icon-mail4" />
                             </svg>
-                            <input className="login__input" onChange={this.handleChange} name="email" type="email" placeholder="username" value={this.props.store.loginForm.email} />
+                            <input autoComplete="username" className="login__input" onChange={this.handleChange} name="email" type="email" placeholder="username" value={this.props.store.loginForm.email} />
                         </div>
                         <div className="login__input-group">
                             <svg className="login__icon">
                                 <use xlinkHref="/sprite.svg#icon-key" />
                             </svg>
-                            <input className="login__input" onChange={this.handleChange} name="password" type="password" placeholder="password" value={this.props.store.loginForm.password} />
+                            <input autoComplete="current-password" className="login__input" onChange={this.handleChange} name="password" type="password" placeholder="password" value={this.props.store.loginForm.password} />
                         </div>
                         <button className="login__btn" type="submit">Login</button>
                         <Link className="login__forgot" to="/password/forgot">Forgot your password?</Link>

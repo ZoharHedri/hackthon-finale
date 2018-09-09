@@ -1,19 +1,27 @@
 const express = require('express');
 const Router = express.Router();
 const Bussiness = require('../model/BussinesModel');
-const Client = require('../model/ClientsModel');
-const WorkDay = require('../model/WorkDayModel');
-const jwt = require('jsonwebtoken');
 const passport = require('passport');
-const nodemailer = require('nodemailer');
 const moment = require('moment');
+const Pusher = require('pusher');
+const crypto = require("crypto");
 
-Router.get('/', (req, res) => {
-    Bussiness.find({})
-        .then(allbussiness => {
-            res.send({ success: true, bussiness: allbussiness });
-        })
-        .catch(err => res.send({ success: false, msg: `${err}` }));
+const pusher = new Pusher({
+    appId: process.env.PUSHER_APP_ID,
+    key: process.env.PUSHER_APP_KEY,
+    secret: process.env.PUSHER_APP_SECRET,
+    cluster: 'ap2',
+    encrypted: true
+});
+
+Router.get('/', async (req, res) => {
+    try {
+        let allbussiness = await Bussiness.find({});
+        res.send({ success: true, bussiness: allbussiness });
+    }
+    catch (err) {
+        res.send({ success: false, msg: `${err}` });
+    }
 })
 
 Router.get('/setting', passport.authenticate("jwt", { session: false }), (req, res) => {
@@ -32,34 +40,32 @@ Router.get('/setting', passport.authenticate("jwt", { session: false }), (req, r
 
 
 
-Router.post('/update', passport.authenticate("jwt", { session: false }), (req, res) => {
-    // check if body is valid
-    req.check('name', 'name is required').notEmpty();
-    req.check('phone', 'phone is not valid').isMobilePhone();
-    req.check('phone', 'phone is required').notEmpty();
-    req.check('category', 'category is required').notEmpty();
-    req.check('email', 'email is not valid').isEmail();
-    req.check('email', 'email is required').notEmpty();
-    req.check('address', 'address is required').notEmpty();
-    let errors = req.validationErrors();
-    if (errors) {
-        errors = errors.reduce((arr, curr) => {
-            arr.push(curr.msg);
-            return arr;
-        }, []);
-        return res.send({ success: false, errors: errors });
+Router.post('/update', passport.authenticate("jwt", { session: false }), async (req, res) => {
+    try {
+        req.check('name', 'name is required').notEmpty();
+        req.check('phone', 'phone is not valid').isMobilePhone();
+        req.check('phone', 'phone is required').notEmpty();
+        req.check('category', 'category is required').notEmpty();
+        req.check('email', 'email is not valid').isEmail();
+        req.check('email', 'email is required').notEmpty();
+        req.check('address', 'address is required').notEmpty();
+        let errors = req.validationErrors();
+        if (errors) {
+            throw errors;
+        }
+
+        req.user.name = req.body.name;
+        req.user.phone = req.body.phone;
+        req.user.email = req.body.email;
+        req.user.address = req.body.address;
+        req.user.category = req.body.category;
+
+        let bussiness = await req.user.save();
+        res.json({ success: true, msg: "bussiness has been updated" });
+
+    } catch (err) {
+        res.json({ success: false, errors: err });
     }
-
-    // save to database
-    req.user.name = req.body.name;
-    req.user.phone = req.body.phone;
-    req.user.email = req.body.email;
-    req.user.address = req.body.address;
-    req.user.category = req.body.category;
-
-    req.user.save()
-        .then(bussiness => res.json({ success: true, msg: "bussiness has been updated" }))
-        .catch(err => res.json({ success: false, msg: "please try again" }))
 });
 
 
@@ -96,52 +102,50 @@ Router.post('/updatePassword', passport.authenticate("jwt", { session: false }),
 
 
 
-Router.post('/register', (req, res) => {
-    // check if body is valid
-    req.check('name', 'name is required').notEmpty();
-    req.check('phone', 'phone is not valid').isMobilePhone();
-    req.check('phone', 'phone is required').notEmpty();
-    req.check('category', 'category is required').notEmpty();
-    req.check('email', 'email is not valid').isEmail();
-    req.check('email', 'email is required').notEmpty();
-    req.check('password', 'password is required').notEmpty();
-    req.checkBody('confirmPassword', "password don't match").equals(req.body.password);
-    req.check('address', 'address is required').notEmpty();
-    let errors = req.validationErrors();
-    if (errors) {
-        errors = errors.reduce((arr, curr) => {
-            arr.push(curr.msg);
-            return arr;
-        }, []);
-        return res.send({ success: false, errors: errors });
-    }
+Router.post('/register', async (req, res) => {
+    try {
+        req.check('name', 'name is required').notEmpty();
+        req.check('phone', 'phone is required').notEmpty();
+        req.check('category', 'category is required').notEmpty();
+        req.check('email', 'email is required').notEmpty();
+        req.check('password', 'password is required').notEmpty();
+        req.check('address', 'address is required').notEmpty();
+        let errors = req.validationErrors();
+        if (errors) {
+            throw errors;
+        }
 
-    // save to database
-    let newBussiness = new Bussiness(req.body);
-    newBussiness.save()
-        .then(bussiness => res.json({ success: true, msg: "u have been registerd.. you can login." }))
-        .catch(err => res.json({ success: false, msg: "please try again" }))
+        req.check('phone', 'phone is not valid').isMobilePhone();
+        req.check('email', 'email is not valid').isEmail();
+        req.checkBody('confirmPassword', "password don't match").equals(req.body.password);
+        errors = req.validationErrors();
+        if (errors) {
+            throw errors;
+        }
+        let newBussiness = new Bussiness(req.body);
+        let bussiness = await newBussiness.save()
+        res.send({ success: true, msg: "u have been registerd.. you can login." });
+    }
+    catch (err) {
+        res.json({ success: false, errors: err })
+    }
 });
 
 
-Router.post('/isExists', (req, res) => {
-    req.check('email', 'email is not valid').isEmail();
-    req.check('email', 'email is required').notEmpty();
-    let errors = req.validationErrors();
-    if (errors) {
-        // return res.send({ success: false, errors: errors });
-        throw errors;
+Router.post('/isExists', async (req, res) => {
+    try {
+        req.check('email', 'email is not valid').isEmail();
+        req.check('email', 'email is required').notEmpty();
+        let errors = req.validationErrors();
+        if (errors) {
+            throw errors;
+        }
+        let bussiness = await Bussiness.findOne({ email: req.body.email });
+        if (!bussiness) return res.send({ success: true, msg: "available" });
+        return res.send({ success: false, msg: "not available" })
+    } catch (err) {
+        res.send({ success: false, msg: err[0].msg })
     }
-    Bussiness.findOne({ email: req.body.email })
-        .then(bussiness => {
-            if (!bussiness) {
-                return res.send({ success: true, msg: "available" });
-            }
-            else {
-                return res.send({ success: false, msg: "not available" })
-            }
-        })
-        .catch(err => { throw err; })
 })
 
 Router.post('/calendar', passport.authenticate('jwt', { session: false }), (req, res) => {
@@ -213,151 +217,126 @@ Router.get('/clients', passport.authenticate('jwt', { session: false }), (req, r
 
 });
 
-// a simple test route to see if authentication works
-Router.post('/test', passport.authenticate('jwt', { session: false }), (req, res) => {
-    res.json({ success: true, msg: "it worked" });
-})
-
-Router.get('/search/:search', (req, res) => {
+Router.get('/search/:search', async (req, res) => {
     let search = req.params.search;
     let exp = new RegExp(search, 'i');
-    Bussiness.find({}).populate({
-        path: 'workingDays.events activites',
-        populate: {
-            path: "activityId",
-            model: "activity"
-        }
-
-    })
-        .then(business => {
-            if (business.length === 0) {
-                res.send({ success: true, filter: business })
-            }
-            else {
-                let filter = business.filter(
-                    item => {
-                        return exp.test(item.name) && item.workingDays.length > 0;
-                    }
-                )
-                res.send({ success: true, filter });
-            }
-        })
+    let business = await Bussiness.find({}).populate({ path: 'workingDays.events activites', populate: { path: "activityId", model: "activity" } });
+    if (business.length === 0) {
+        res.send({ success: true, filter: business })
+    }
+    else {
+        let filter = business.filter(item => exp.test(item.name) && item.workingDays.length > 0);
+        res.send({ success: true, filter });
+    }
 })
 
 
-Router.get('/:bussinessId/activity/:activityId/events', (req, res) => {
+Router.get('/:bussinessId/activity/:activityId/events', async (req, res) => {
     let bussinessId = req.params.bussinessId;
     let activityId = req.params.activityId;
-    Bussiness.findOne({ _id: bussinessId })
-        .populate({ path: 'activites workingDays.events', populate: { path: 'activityId', model: 'activity' } })
-        .then(filter => {
+    let filter = await Bussiness.findOne({ _id: bussinessId }).populate({ path: 'activites workingDays.events', populate: { path: 'activityId', model: 'activity' } });
 
-            filter.workingDays = filter.workingDays.filter(days => {
-                let moment1 = days.date;
-                let moment2 = moment().format("DD/MM/YYYY");
-                // let diff = moment1.diff(moment2, 'days');
-                // return diff <= 6;
-                return moment1 >= moment2;
-            })
-            filter.workingDays = filter.workingDays.slice(0, 5);
-            // we find the longest activity duration
-            // let activites = item.activites.map(item => item.duration);
-            // let longActivityDuration = Math.max.apply(Math, activites);
-            let activity = filter.activites.find(item => item.id === activityId);
-            let longActivityDuration = activity.duration;
+    filter.workingDays = filter.workingDays.filter(days => {
+        let moment1 = days.date;
+        let moment2 = moment().format("DD/MM/YYYY");
+        return moment1 >= moment2;
+    })
+    filter.workingDays = filter.workingDays.slice(0, 5);
+    let activity = filter.activites.find(item => item.id === activityId);
+    let activityDuration = activity.duration;
 
-            filter.workingDays.forEach(workDay => {
-                let opendEvents = [];
+    filter.workingDays.forEach(workDay => {
+        let opendEvents = [];
 
-                let events = workDay.events.reduce((arr, curr) => {
-                    let time = moment().toDate();
-                    let hours = Number(curr.startingTime.split(":")[0]);
-                    let minutes = Number(curr.startingTime.split(":")[1]);
-                    time.setHours(hours);
-                    time.setMinutes(minutes);
-                    time.setSeconds(0);
-                    time = moment(time);
-                    time.add(curr.activityId.duration, 'minutes');
-                    time = time.format("HH:mm");
-                    return [...arr, { timeStart: curr.startingTime, timeEnd: time }]
-                }, []);
+        let events = workDay.events.reduce((arr, curr) => {
+            let time = moment().toDate();
+            let hours = Number(curr.startingTime.split(":")[0]);
+            let minutes = Number(curr.startingTime.split(":")[1]);
+            time.setHours(hours);
+            time.setMinutes(minutes);
+            time.setSeconds(0);
+            time = moment(time);
+            time.add(curr.activityId.duration, 'minutes');
+            time = time.format("HH:mm");
+            return [...arr, { timeStart: curr.startingTime, timeEnd: time }]
+        }, []);
 
-                events.push(...workDay.breaking);
+        events.push(...workDay.breaking);
 
-                events.sort((e1, e2) => {
-                    let time1 = moment(e1.timeStart, "HH:mm");
-                    let time2 = moment(e2.timeStart, "HH:mm");
-                    return time2.isBefore(time1);
-                });
-                let timeStart = moment(workDay.timeDuration.timeStart, "HH:mm");
-                let timeEnd = moment(workDay.timeDuration.timeEnd, "HH:mm");
-                let times = [];
-                // first we added the regular times from the activity
-                for (let time = timeStart; time <= timeEnd; time.add(longActivityDuration, 'minutes')) {
-                    times.push(time.format("HH:mm"));
+        events.sort((e1, e2) => {
+            let time1 = moment(e1.timeStart, "HH:mm");
+            let time2 = moment(e2.timeStart, "HH:mm");
+            return time2.isBefore(time1);
+        });
+        let timeStart = moment(workDay.timeDuration.timeStart, "HH:mm");
+        let timeEnd = moment(workDay.timeDuration.timeEnd, "HH:mm");
+        let times = [];
+        // first we added the regular times from the activity
+        for (let time = timeStart; time <= timeEnd; time.add(activityDuration, 'minutes')) {
+            times.push(time.format("HH:mm"));
+        }
+        let needToSort = false;
+        // then we added the end time of each event
+        for (let i = 0; i < events.length; i++) {
+            let found = times.find(item => item === events[i].timeEnd);
+            if (!found) {
+                needToSort = true;
+                times.push(events[i].timeEnd);
+            }
+        }
+        // sort the array of times in order
+        if (needToSort) {
+            times.sort((time1, time2) => moment(time2, "HH:mm") < moment(time1, "HH:mm"));
+        }
+        // we loop through our times and continue regular
+        for (let i = 0; i < times.length; i++) {
+            let time = moment(times[i], "HH:mm");
+            let timeToEnd = time.clone().add(activityDuration, 'minutes');
+            let shuldBeAdded = true;
+            // check if the time to be added is allredy in the events array
+            for (let i = 0; i < events.length; i++) {
+                let timeEventStart = moment(events[i].timeStart, "HH:mm");
+                let timeEventEnd = moment(events[i].timeEnd, "HH:mm");
+                if (time > timeEventStart && time < timeEventEnd) {
+                    shuldBeAdded = false;
+                    break;
+                } else if (time <= timeEventStart && timeToEnd > timeEventStart) {
+                    shuldBeAdded = false;
+                    break;
                 }
-                let needToSort = false;
-                // then we added the end time of each event
-                for (let i = 0; i < events.length; i++) {
-                    let found = times.find(item => item === events[i].timeEnd);
-                    if (!found) {
-                        needToSort = true;
-                        times.push(events[i].timeEnd);
-                    }
-                }
-                // sort the array of times in order
-                if (needToSort) {
-                    times.sort((time1, time2) => moment(time2, "HH:mm") < moment(time1, "HH:mm"));
-                }
-                // we loop through our times and continue regular
-                for (let i = 0; i < times.length; i++) {
-                    let time = moment(times[i], "HH:mm");
-                    let timeToEnd = time.clone().add(longActivityDuration, 'minutes');
-                    let shuldBeAdded = true;
-                    // check if the time to be added is allredy in the events array
-                    for (let i = 0; i < events.length; i++) {
-                        let timeEventStart = moment(events[i].timeStart, "HH:mm");
-                        let timeEventEnd = moment(events[i].timeEnd, "HH:mm");
-                        if (time > timeEventStart && time < timeEventEnd) {
-                            shuldBeAdded = false;
-                            break;
-                        } else if (time <= timeEventStart && timeToEnd > timeEventStart) {
-                            shuldBeAdded = false;
-                            break;
-                        }
-                    }
+            }
 
-                    // check if TimeToEnd is less then the TimeEnd
-                    if (timeToEnd > timeEnd) {
-                        shuldBeAdded = false;
-                    }
+            // check if TimeToEnd is less then the TimeEnd
+            if (timeToEnd > timeEnd) {
+                shuldBeAdded = false;
+            }
 
-                    // check if shuldbeAdded is true
-                    if (shuldBeAdded) {
-                        opendEvents.push({ timeStart: time.format("HH:mm"), timeEnd: timeToEnd.format("HH:mm") })
-                    }
+            // check if shuldbeAdded is true
+            if (shuldBeAdded) {
+                const _id = crypto.randomBytes(16).toString("hex");
+                opendEvents.push({ _id: _id, timeStart: time.format("HH:mm"), timeEnd: timeToEnd.format("HH:mm") })
+            }
 
-                }
-                workDay.opendEvents = opendEvents;
-                // we now want to add also in between events
+        }
+        workDay.opendEvents = opendEvents;
+    })
 
-            })
+    filter.workingDays = filter.workingDays.filter(workDay => {
+        return workDay.opendEvents.length > 0;
+    })
+    let events = filter.workingDays.reduce((arr, curr) => [...arr, ...curr.opendEvents], []);
+    if (events.length === 0) return res.send({ success: true, workingDays: [] });
 
-            filter.workingDays = filter.workingDays.filter(workDay => {
-                return workDay.opendEvents.length > 0;
-            })
-            let events = filter.workingDays.reduce((arr, curr) => [...arr, ...curr.opendEvents], []);
-            if (events.length === 0) return res.send({ success: true, workingDays: [] });
-
-            workingDays = filter.workingDays.map(workDay => ({
-                _id: workDay.id,
-                opendEvents: workDay.opendEvents,
-                date: workDay.date
-            }))
-
-            res.send({ success: true, workingDays: workingDays });
-
-        })
+    workingDays = filter.workingDays.map(workDay => ({
+        _id: workDay.id,
+        opendEvents: workDay.opendEvents,
+        date: workDay.date
+    }))
+    pusher.trigger('bussiness', 'get-events', {
+        workingDays: workingDays,
+        activityId: activityId
+    })
+    res.send({ success: true, workingDays: workingDays });
 })
 
 

@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import EditableLabel from 'react-inline-editing';
+// import EditableLabel from 'react-inline-editing';
 import { observer, inject } from 'mobx-react';
 import './Activity.scss';
 
