@@ -141,6 +141,7 @@ function sendMail(name, email) {
                 }
                 
                 .container{
+                width:600px;
                 margin: 80px auto;
                 padding:10px 20px;
                 display:flex;
