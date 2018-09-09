@@ -8,8 +8,7 @@ const cors = require('cors');
 // loading configuration setting this run on the machine
 require('dotenv').config({ path: path.join(__dirname, 'config', '.env') });
 
-//const conn = require('./config/conncetion');
-
+const conn = require('./config/conncetion');
 const app = express();
 
 // cors middleware
