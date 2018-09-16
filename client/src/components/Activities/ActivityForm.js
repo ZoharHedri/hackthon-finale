@@ -5,6 +5,7 @@ import Modal from '@material-ui/core/Modal';
 import Button from '@material-ui/core/Button';
 import Paper from '@material-ui/core/Paper'
 import './ActivityForm.scss';
+import LoadingHOC from '../LoadingHOC/LoadingHOC';
 
 @inject("store")
 @observer
@@ -19,6 +20,7 @@ class ActivityForm extends Component {
     handleSubmit = (e) => {
         e.preventDefault();
         this.props.store.addActivity();
+        this.handleClose();
     }
 
     componentDidMount() {
@@ -59,9 +61,9 @@ class ActivityForm extends Component {
                         </form>
                     </Paper>
                 </Modal>
-                <div>
+                <LoadingHOC>
                     <ActivityList />
-                </div>
+                </LoadingHOC>
             </div>
         )
     }

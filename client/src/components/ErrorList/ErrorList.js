@@ -21,7 +21,7 @@ export class ErrorList extends Component {
     render() {
         return (
             <React.Fragment>
-                {this.props.errors && this.props.errors.map((error, index) => <Error key={index} error={error.msg} />)}
+                {this.props.errors && this.props.errors.map((error, index) => <Error key={index} error={error.msg || error} />)}
             </React.Fragment>
         )
     }

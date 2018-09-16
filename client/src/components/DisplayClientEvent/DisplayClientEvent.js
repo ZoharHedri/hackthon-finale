@@ -2,6 +2,8 @@ import React, { Component } from 'react'
 import { inject } from '../../../node_modules/mobx-react';
 import './DisplayClientEvent.scss';
 import Button from '@material-ui/core/Button';
+import moment from 'moment';
+const now = moment().format("DD/MM/YYYY");
 
 @inject("store")
 class DisplayClientEvent extends Component {
@@ -12,7 +14,7 @@ class DisplayClientEvent extends Component {
         return (
             <div className="card-box">
                 <div className="card">
-                    <div className="card__side card__side--front">
+                    <div className={now === this.props.date ? "card__side card__side--front card__side--front-today" : "card__side card__side--front"}>
                         <div className="card__profile">
                             <span className="card__headline">New Event</span>
                             <div className="card__img-box">

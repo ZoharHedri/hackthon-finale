@@ -14,7 +14,7 @@ Router.post('/addActivity', passport.authenticate('jwt', { session: false }), as
         let activity = await newActivity.save();
         req.user.activites = req.user.activites.concat(activity.id);
         let user = await req.user.save();
-        res.json({ success: true, msg: "activity added" })
+        res.json({ success: true, msg: "activity added", activity: activity })
     }
     catch (err) {
         res.json({ success: false, msg: `${err}` })

@@ -12,7 +12,6 @@ class Setting extends Component {
         this.props.store.setRegisterBussinessForm({ key: event.target.name, value: event.target.value })
     }
     componentWillUnmount() {
-        this.props.store.getSettingApi();
         this.props.store._clearErrors();
     }
     handleSubmit = event => {

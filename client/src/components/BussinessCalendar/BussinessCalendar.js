@@ -4,7 +4,6 @@ import { inject, observer } from '../../../node_modules/mobx-react';
 import FormCalendar from './FormCalendar';
 import BigCalendar from 'react-big-calendar';
 import moment from 'moment';
-// import dates from '../../utils/dates';
 
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import './BussinessCalendar.css';
@@ -27,13 +26,60 @@ class ColoredDateCellWrapper extends Component {
   START_PERIOD = moment(this.props.store.bussinessCalendar.startPeriod).toDate();
   END_PERIOD = moment(this.props.store.bussinessCalendar.endPeriod).toDate();
   render() {
+    let found = this.props.store.monthDays.find(day => moment(day.date, "DD/MM/YYYY").toDate() === this.props.value);
     return React.cloneElement(Children.only(this.props.children), {
       style: {
         ...this.props.children.style,
-        backgroundColor: this.props.value >= this.START_PERIOD && this.props.value <= this.END_PERIOD ? 'lightgreen' : '#fff',
+        backgroundColor: found ? "red" : this.props.value >= this.START_PERIOD && this.props.value <= this.END_PERIOD ? '#f5f5f5' : '#fff',
       },
     });
   }
+}
+
+const CustomToolbar = (toolbar) => {
+  const goToBack = () => {
+    toolbar.date.setMonth(toolbar.date.getMonth() - 1);
+    toolbar.onNavigate('prev');
+  };
+
+  const goToNext = () => {
+    toolbar.date.setMonth(toolbar.date.getMonth() + 1);
+    toolbar.onNavigate('next');
+  };
+
+  const goToCurrent = () => {
+    const now = new Date();
+    toolbar.date.setMonth(now.getMonth());
+    toolbar.date.setYear(now.getFullYear());
+    toolbar.onNavigate('current');
+  };
+
+  const label = () => {
+    const date = moment(toolbar.date);
+    return (
+      <span><b>{date.format('MMMM')}</b><span> {date.format('YYYY')}</span></span>
+    );
+  };
+
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', marginBottom: '16px' }}>
+      <div style={{ display: 'flex', alignItems: 'center' }}>
+        <div onClick={goToBack} style={{ cursor: 'pointer', width: '1.25rem', height: '1.25rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <svg style={{ width: '100%', height: '100%', fill: '#333' }}>
+            <use xlinkHref="/sprites/solid.svg#chevron-left" />
+          </svg>
+        </div>
+        <div onClick={goToNext} style={{ cursor: 'pointer', width: '1.25rem', height: '1.25rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <svg style={{ width: '100%', height: '100%', fill: '#333' }}>
+            <use xlinkHref="/sprites/solid.svg#chevron-right" />
+          </svg>
+        </div>
+        <button style={{ cursor: 'pointer', background: "#eee", border: 'none', margin: '0 16px', padding: '5px 15px', borderRadius: '5px' }} onClick={goToCurrent}>today</button>
+
+      </div>
+      <label className={'label-date'}>{label()}</label>
+    </div >
+  );
 }
 
 @observer
@@ -50,15 +96,25 @@ class Calendar extends Component {
     else {
       backgroundColor = '#2ecc71';
     }
-    let style = {
+    let style = ({
       backgroundColor: backgroundColor,
       borderRadius: '5px',
       fontWeight: fontWeight || 400,
       opacity: 0.8,
       color: '#fff',
       border: '0px',
-      display: 'block'
-    };
+      display: 'block',
+      position: 'relative',
+      '&::before': {
+        content: `""`,
+        position: 'absolute',
+        left: '0px',
+        top: '0px',
+        width: '3px',
+        height: '100%',
+        background: "#f00"
+      }
+    });
     return {
       style: style
     };
@@ -72,7 +128,8 @@ class Calendar extends Component {
         selectable
         eventPropGetter={this.eventStyleGetter}
         components={{
-          dateCellWrapper: ColoredDateCellWrapper
+          dateCellWrapper: ColoredDateCellWrapper,
+          toolbar: CustomToolbar
         }}
         onSelectEvent={event => alert(event.title)}
         onSelectSlot={handleSelect}
@@ -94,6 +151,7 @@ class Calendar extends Component {
 class BussinessCalendar extends Component {
   componentDidMount() {
     this.props.store._getBussinessEvents();
+    this.props.store._getBussinessMonthDays();
   }
   render() {
     return (

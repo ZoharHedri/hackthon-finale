@@ -18,14 +18,18 @@ class SearchBar extends Component {
 
   handleKeyUp = debounce(() => {
     if (this.state.textInput === "") return;
+    this.props.store.isLoading = true;
     axios.get(`/bussiness/search/${this.state.textInput}`)
       .then(res => {
+        this.props.store.isLoading = false;
         if (res.data.success) {
           this.props.store.updateBusinessArr(res.data.filter);
         }
-        console.log(res.data);
       })
-      .catch(err => { throw err; })
+      .catch(err => {
+        this.props.store.isLoading = false;
+        throw err;
+      })
   }, 500);
 
   render() {

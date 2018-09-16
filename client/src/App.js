@@ -3,10 +3,9 @@ import { BrowserRouter, Route, Redirect } from 'react-router-dom';
 import { inject, observer } from '../node_modules/mobx-react';
 import ErrorBoundary from './components/ErrorBoundary/ErrorBoundary';
 import Loadable from 'react-loadable';
+import Loading from './components/Loading/Loading';
 
-const Loading = () => {
-  return <h3>Loading...</h3>
-}
+
 const AsyncLogin = Loadable({
   loader: () => import('./components/Login/Login'),
   loading: Loading,

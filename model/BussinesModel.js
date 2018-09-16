@@ -25,7 +25,8 @@ const BussinessSchema = new Schema({
     address: { type: String, required: true },
     clients: [{ type: Schema.Types.ObjectId, ref: 'client' }],
     workingDays: [WorkDaySchema],
-    activites: [{ type: Schema.Types.ObjectId, ref: 'activity', autopopulate: true }]
+    activites: [{ type: Schema.Types.ObjectId, ref: 'activity', autopopulate: true }],
+    avatarUrl: { type: String, default: null }
 });
 
 // save the bussiness hash password using bcryptjs module

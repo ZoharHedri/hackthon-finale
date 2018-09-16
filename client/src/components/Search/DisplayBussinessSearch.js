@@ -57,11 +57,17 @@ class DisplayBussinessSearch extends Component {
         return (
             <div className="bussinessSearch">
                 <div className="bussinessSearch__item">
-                    <div className="bussinessSearch__item-name">{this.props.name}</div>
-                    <select onChange={this.handleChange} name="activityId" defaultValue="">
-                        <option value="" disabled="disabled" hidden="hidden">Choose a activity</option>
-                        {this.props.activites.map(item => <DisplayActivty key={item._id} {...item} />)}
-                    </select>
+                    <div className="bussinessSearch__item__img-box">
+                        <img className="bussinessSearch__item__img" src={`/images/${this.props.avatarUrl}`} alt="" />
+                    </div>
+                    <div className="bussinessSearch__item__detail">
+                        <div className="bussinessSearch__item-name">{this.props.name}</div>
+                        <div className="bussinessSearch__item__cat">{this.props.category}</div>
+                        <select onChange={this.handleChange} name="activityId" defaultValue="">
+                            <option value="" disabled="disabled" hidden="hidden">Choose activity</option>
+                            {this.props.activites.map(item => <DisplayActivty key={item._id} {...item} />)}
+                        </select>
+                    </div>
                 </div>
                 <Modal
                     aria-labelledby="simple-modal-title"

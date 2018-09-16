@@ -24,7 +24,12 @@
         &--front{
             background: #fff;
         }
-
+        &--front-today{
+            background: #FF6138;
+        }
+        &--front-past{
+            background: #00A387;
+        }
         &--back{
             transform: rotateY(180deg);
 

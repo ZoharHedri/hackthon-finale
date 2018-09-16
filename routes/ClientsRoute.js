@@ -4,46 +4,10 @@ const passport = require('passport');
 const Client = require('../model/ClientsModel');
 const Event = require('../model/EventModel');
 const Bussiness = require('../model/BussinesModel');
-const multer = require('multer');
-const GridFsStorage = require('multer-gridfs-storage');
-const Grid = require('gridfs-stream');
-const crypto = require('crypto')
-const mongoose = require('mongoose');
-const path = require('path');
 
 
-const conn = require('../config/conncetion');
 
-
-let gfs;
-conn.once('open', function () {
-    console.log('mongodb is connected');
-    gfs = Grid(conn.db, mongoose.mongo);
-    gfs.collection('uploads');
-})
-
-
-let storage = new GridFsStorage({
-    url: `mongodb://${process.env.DB_USER}:${process.env.DB_PASS}@ds125862.mlab.com:25862/hackton_db`,
-    file: (req, file) => {
-        return new Promise((resolve, reject) => {
-            crypto.randomBytes(16, (err, buf) => {
-                if (err) {
-                    return reject(err);
-                }
-                const filename = buf.toString('hex') + path.extname(file.originalname);
-                const fileInfo = {
-                    filename: filename,
-                    bucketName: 'uploads'
-                };
-                resolve(fileInfo);
-            });
-        });
-    },
-
-})
-
-let upload = multer({ storage: storage }).single('avatar');
+const upload = require('../config/upload');
 
 Router.post('/register', upload, async (req, res) => {
     try {
@@ -168,16 +132,6 @@ Router.delete('/event/:eventId', passport.authenticate('jwt', { session: false }
 
 })
 
-// this route is for getting images stored in the database
-Router.get('/images/:filename', async (req, res) => {
-    try {
-        let file = await gfs.files.findOne({ filename: req.params.filename });
-        let readstream = gfs.createReadStream(file.filename);
-        readstream.pipe(res);
-        return file;
-    } catch (err) {
-        res.send({ success: false, msg: err.msg });
-    }
-})
+
 
 module.exports = Router;

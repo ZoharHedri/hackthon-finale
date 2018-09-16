@@ -1,0 +1,18 @@
+.message{
+    padding:5px 15px;
+    text-transform: capitalize;
+    border-radius: 3px;
+    word-wrap: break-word;
+    width: 90%;
+    &:not(:last-child){
+        margin-bottom: 16px;
+    } 
+    &--success{
+        background:rgb(196, 253, 223);
+        color: rgb(0, 206, 96);
+    }
+    &--warning{
+        background:rgb(216, 185, 255);
+        color: #8851CE;
+    }
+}

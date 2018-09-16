@@ -85,17 +85,30 @@ class Store {
     @observable errors = [];
     @observable workingDays = [];
     // @observable open = false;
-
+    @observable monthDays = [];
     token = localStorage.getItem('TOKEN');
     options = { headers: { "Authorization": this.token } };
-
+    @observable isLoading = false;
 
 
     @action removeActivity = async (activity_id) => {
         try {
-            let res = await axios.delete(`/activities/delete/${activity_id}`, this.options);
-            console.log(res.data);
-        } catch (err) { console.log(err) };
+            this.isLoading = true;
+            await axios.delete(`/activities/delete/${activity_id}`, this.options);
+            let findActivityIndex = this.activities.findIndex(ac => ac.id === activity_id);
+            this.activities.splice(findActivityIndex, 1);
+        } catch (err) {
+            console.log(err)
+        } finally {
+            this.isLoading = false;
+
+        }
+    }
+
+    @action _getBussinessMonthDays = async () => {
+        let res = await axios.get('/bussiness/month/days', this.options);
+        this.monthDays = res.data.monthDays;
+
     }
 
     @action setCientEventForm = (obj) => {
@@ -114,9 +127,14 @@ class Store {
 
     @action saveEventForClient = async (bussinessId, workingDayId) => {
         try {
+            this.isLoading = true;
             await axios.post(`/clients/events/add/${bussinessId}/${workingDayId}`, this.clientEventForm, this.options);
             this.getClientEvents();
-        } catch (err) { console.log(err) };
+        } catch (err) {
+            console.log(err)
+        } finally {
+            this.isLoading = false;
+        }
     }
 
     @action setActivityForm = (obj) => {
@@ -126,8 +144,12 @@ class Store {
     @action addActivity = async () => {
         try {
             let activits = this.activityForm;
+            this.isLoading = true;
             let res = await axios.post('/activities/addActivity', activits, this.options);
-            console.log(res.data)
+            this.isLoading = false;
+            if (res.data.success) {
+                this.activities.push(res.data.activity);
+            }
         } catch (err) { console.log(err) };
     }
 
@@ -142,9 +164,13 @@ class Store {
 
     @action removeEventById = async (eventId) => {
         try {
+            this.isLoading = true;
             let res = await axios.delete(`/clients/event/${eventId}`, this.options);
+            this.isLoading = false;
             if (res.data.success) {
-                this.getClientEvents();
+                let index = this.clientEvents.findIndex(e => e._id === eventId);
+                this.clientEvents.splice(index, 1);
+                // this.getClientEvents();
             }
         } catch (err) { console.log(err) };
     }
@@ -242,9 +268,26 @@ class Store {
 
     // register bussiness to database
     @action registerBussiness = async () => {
-        let res = await axios.post('/bussiness/register', this.registerBussinessForm);
-        if (!res.data.success) this.errors = res.data.errors;
-        this.clearRegisterBussinessForm();
+        try {
+            let fd = new FormData();
+            for (let key in this.registerBussinessForm) {
+                fd.append(key, this.registerBussinessForm[key])
+            }
+            let opts = { headers: { 'Content-Type': 'multipart/form-data' } };
+            this.isLoading = true;
+            let res = await axios.post('/bussiness/register', fd, opts);
+            if (!res.data.success) {
+                this.errors = res.data.errors;
+            } else {
+                this.clearRegisterBussinessForm();
+                this._clearErrors();
+            }
+
+        } catch (err) {
+            console.log(err.msg)
+        } finally {
+            this.isLoading = false;
+        };
     }
 
     // register client to database
@@ -255,19 +298,24 @@ class Store {
                 fd.append(key, this.registerClientForm[key])
             }
             let opts = { headers: { 'Content-Type': 'multipart/form-data' } };
-            let res = await axios.post('/clients/register', fd, opts)
+            this.isLoading = true;
+            let res = await axios.post('/clients/register', fd, opts);
             if (res.data.success) {
                 return res.data.success;
             } else {
                 this.errors = res.data.errors;
             }
-        } catch (err) { console.log(err.msg) };
+        } catch (err) {
+            console.log(err.msg)
+        } finally {
+            this.isLoading = false;
+        };
     }
 
     //login to a database using email - BUSSINESS or CLIENT return
     @action login = async () => {
         try {
-            let res = await axios.post('/users/login', this.loginForm)
+            let res = await axios.post('/users/login', this.loginForm);
             if (res.data.success) {
                 // we saved the token from the server in localstorage
                 localStorage.setItem('TOKEN', res.data.token);
@@ -280,7 +328,11 @@ class Store {
                 this.userStatus = user;
                 this._clearErrors();
             } else {
-                this.loggedIn = false;
+                let user = {
+                    loggedIn: false,
+                    userModel: ""
+                }
+                this.userStatus = user;
                 this._addError(res.data.msg);
             }
             this.clearLoginForm();
@@ -320,13 +372,20 @@ class Store {
 
     @action forgot = async () => {
         try {
+            this.isLoading = true;
             let res = await axios.post('/users/password/forgot', this.forgotPasswordForm);
+            // this.isLoading = false;
             if (res.data.success) {
                 this._clearErrors();
+                this.message = "Check your inbox for the next steps. If you don't receive an email, and it's not in your spam folder this could mean you signed up with a different address.";
             } else {
                 this._addError(res.data.msg);
             }
-        } catch (err) { this.errors = err.response.data.errors };
+        } catch (err) {
+            console.log(err);
+        } finally {
+            this.isLoading = false;
+        }
     }
 
     @action resetPassword = async (token) => {
@@ -391,7 +450,9 @@ class Store {
 
     @action setBussinessCalendarWorkDays = async (periodWorkDays) => {
         try {
+            this.isLoading = true;
             let res = await axios.post('/bussiness/calendar/', periodWorkDays, this.options)
+            this.isLoading = false;
             console.log(res.data);
         } catch (err) { console.log(err.msg) };
     }

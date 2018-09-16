@@ -32,6 +32,7 @@ export default class Activity extends Component {
 
     render() {
         return (
+
             <div className="activity-box">
                 <div className="activity">
                     <div className="activity__label-box">

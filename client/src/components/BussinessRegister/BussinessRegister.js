@@ -4,6 +4,7 @@ import './BussinessRegister.scss';
 import { debounce } from 'lodash';
 import Message from '../Message/Message';
 import ErrorList from '../ErrorList/ErrorList';
+import LoadingHOC from '../LoadingHOC/LoadingHOC';
 
 @inject(allStore => ({
     setRegisterBussinessForm: allStore.store.setRegisterBussinessForm,
@@ -18,7 +19,12 @@ import ErrorList from '../ErrorList/ErrorList';
 class BussinessRegister extends Component {
 
     handleChange = event => {
-        this.props.setRegisterBussinessForm({ key: event.target.name, value: event.target.value });
+        if (event.target.name === "avatar") {
+            this.props.setRegisterBussinessForm({ key: event.target.name, value: event.target.files[0] })
+        }
+        else {
+            this.props.setRegisterBussinessForm({ key: event.target.name, value: event.target.value })
+        }
     }
 
     handleSubmit = event => {
@@ -96,7 +102,6 @@ class BussinessRegister extends Component {
                                 <option value="Food retail and service">Food retail and service</option>
                                 <option value="Gifts and flowers">Gifts and flowers</option>
                                 <option value="Government">Government</option>
-                                <option value="Gifts and flowers">Gifts and flowers</option>
                                 <option value="Health and personal care">Health and personal care</option>
                                 <option value="Home and garden">Home and garden</option>
                                 <option value="Nonprofit">Nonprofit</option>
@@ -108,7 +113,13 @@ class BussinessRegister extends Component {
                                 <option value="Other">Other</option>
                             </select>
                         </div>
-                        <button className="register__btn" type="submit">Sign up</button>
+                        <div className="register__input-group">
+                            <span className="register__label" >Upload File</span>
+                            <input required className="register__input" onChange={this.handleChange} name="avatar" type="file" />
+                        </div>
+                        <LoadingHOC>
+                            <button className="register__btn" type="submit">Sign up</button>
+                        </LoadingHOC>
                     </form>
                 </div>
             </div >

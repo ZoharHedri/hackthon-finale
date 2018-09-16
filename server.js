@@ -9,6 +9,17 @@ const cors = require('cors');
 require('dotenv').config({ path: path.join(__dirname, 'config', '.env') });
 
 const conn = require('./config/conncetion');
+
+const Grid = require('gridfs-stream');
+const mongoose = require('mongoose');
+
+let gfs;
+conn.once('open', function () {
+    console.log('mongodb is connected');
+    gfs = Grid(conn.db, mongoose.mongo);
+    gfs.collection('uploads');
+})
+
 const app = express();
 
 // cors middleware
@@ -41,6 +52,18 @@ app.use('/bussiness', BusinessRoute);
 app.use('/clients', ClientsRoute);
 app.use('/activities', ActivitiesRoute);
 app.use('/dashboard', DashboardRoute);
+
+// this route is for getting images stored in the database
+app.get('/images/:filename', async (req, res) => {
+    try {
+        let file = await gfs.files.findOne({ filename: req.params.filename });
+        let readstream = gfs.createReadStream(file.filename);
+        readstream.pipe(res);
+        return file;
+    } catch (err) {
+        res.send({ success: false, msg: err.msg });
+    }
+})
 
 const PORT = process.env.PORT || 8000;
 app.listen(PORT, console.log(`Server running on port ${PORT}`));

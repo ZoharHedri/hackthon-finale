@@ -4,6 +4,7 @@ import './AddClient.scss';
 import ErrorList from '../ErrorList/ErrorList';
 import Message from '../Message/Message';
 import { debounce } from 'lodash';
+import LoadingHOC from '../LoadingHOC/LoadingHOC';
 
 @inject('store')
 @observer
@@ -77,7 +78,9 @@ class AddClient extends Component {
               <span className="register__label" >Upload File</span>
               <input required className="register__input" onChange={this.handleChange} name="avatar" type="file" />
             </div>
-            <button className="register__btn" type="submit">Register</button>
+            <LoadingHOC>
+              <button className="register__btn" type="submit">Register</button>
+            </LoadingHOC>
           </form>
         </div>
       </div>

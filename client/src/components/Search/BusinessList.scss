@@ -1,5 +1,9 @@
 .bussinessList{
     display: flex; 
     flex-wrap: wrap;
+    align-self: flex-start;
+    width: 100%;
+    flex: 1;
+    position: relative;
 }
 

@@ -5,6 +5,7 @@ const passport = require('passport');
 const moment = require('moment');
 const Pusher = require('pusher');
 const crypto = require("crypto");
+const upload = require('../config/upload');
 
 const pusher = new Pusher({
     appId: process.env.PUSHER_APP_ID,
@@ -102,7 +103,7 @@ Router.post('/updatePassword', passport.authenticate("jwt", { session: false }),
 
 
 
-Router.post('/register', async (req, res) => {
+Router.post('/register', upload, async (req, res) => {
     try {
         req.check('name', 'name is required').notEmpty();
         req.check('phone', 'phone is required').notEmpty();
@@ -122,6 +123,7 @@ Router.post('/register', async (req, res) => {
         if (errors) {
             throw errors;
         }
+        req.body.avatarUrl = req.file.filename;
         let newBussiness = new Bussiness(req.body);
         let bussiness = await newBussiness.save()
         res.send({ success: true, msg: "u have been registerd.. you can login." });
@@ -175,11 +177,7 @@ Router.get('/calendar', passport.authenticate('jwt', { session: false }), (req, 
     res.send({ success: true, events: events })
 });
 
-// this is a innerjoin with 2 arrays
-const equijoin = (xs, ys, primary, foreign, sel) => {
-    const ix = xs.reduce((ix, row) => ix.set(row[primary], row), new Map);
-    return ys.map(row => sel(ix.get(row[foreign]), row));
-};
+
 
 Router.get('/clients', passport.authenticate('jwt', { session: false }), (req, res) => {
     // get the featured working days that have a events
@@ -193,10 +191,13 @@ Router.get('/clients', passport.authenticate('jwt', { session: false }), (req, r
     let clientsWithEvent = req.user.clients.map(client => {
         let obj = {};
 
-        let matchEvents = equijoin(events, client.events,
-            "id",
-            "id",
-            ({ _id, startingTime, date }, { status }) => ({ _id, startingTime, date, status }));
+        let matchEvents = client.events.filter(item => {
+            for (let i = 0; i < events.length; i++) {
+                if (item.id === events[i].id) return true;
+            }
+            return false;
+        })
+
         if (matchEvents.length === 0) return null;
 
         let todayEvent = matchEvents.find(e => e.date === now);
@@ -339,5 +340,12 @@ Router.get('/:bussinessId/activity/:activityId/events', async (req, res) => {
     res.send({ success: true, workingDays: workingDays });
 })
 
+Router.get('/month/days', passport.authenticate('jwt', { session: false }), (req, res) => {
+    let monthDays = req.user.workingDays.concat();
+    const START = moment().startOf('month');
+    const END = moment().endOf('month');
+    monthDays = monthDays.filter(item => moment(item.date, "DD/MM/YYYY") >= START && moment(item.date, "DD/MM/YYYY") <= END);
+    res.send({ success: true, monthDays });
+})
 
 module.exports = Router;

@@ -13,7 +13,7 @@ class DisplayClient extends Component {
         </div>
         <div className="client__value">{this.props.client.phone}</div>
         <div className="client__value">{this.props.client.email}</div>
-        <div className="client__value">
+        <div className="client__value client__value--center">
           <span className="client__tag">{this.props.client.events}</span>
         </div>
         <div className="client__value">
