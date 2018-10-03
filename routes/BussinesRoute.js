@@ -223,6 +223,7 @@ Router.get('/clients', passport.authenticate('jwt', { session: false }), (req, r
         }
 
     })
+    clientsWithEvent.sort((cl1, cl2) => cl2.todayEvent - cl1.todayEvent);
     // map eatch clients to see if the events is
     res.send({ success: true, clients: clientsWithEvent })
 

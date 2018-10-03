@@ -5,6 +5,7 @@ const Client = require('../model/ClientsModel');
 const Event = require('../model/EventModel');
 const Bussiness = require('../model/BussinesModel');
 const jwt = require('jsonwebtoken');
+const moment = require('moment');
 
 
 const upload = require('../config/upload');
@@ -60,7 +61,13 @@ Router.post('/isExists', (req, res) => {
 
 Router.get('/events', passport.authenticate('jwt', { session: false }), (req, res) => {
     let eventsSortedByDate = req.user.events.sort(
-        (event1, event2) => event2.date - event1.date
+        (event1, event2) => {
+            let [hours1, minutes1] = event1.startingTime.split(":");
+            let [hours2, minutes2] = event2.startingTime.split(":");
+            let m1 = moment(event1.date, "DD/MM/YYYY").set({ hours: hours1, minutes: minutes1 });;
+            let m2 = moment(event2.date, "DD/MM/YYYY").set({ hours: hours2, minutes: minutes2 });;
+            return m1 - m2;
+        }
     )
     eventsSortedByDate = eventsSortedByDate.map(event => ({
         activityId: event.activityId,

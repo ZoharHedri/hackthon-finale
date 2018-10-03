@@ -68,6 +68,18 @@ app.get('/images/:filename', async (req, res) => {
     }
 })
 
+app.delete('/images/:filename', async (req, res) => {
+    try {
+        let file = await gfs.files.findOne({ filename: req.params.filename });
+        if (!file) return res.send({ success: false, msg: 'file not exsits' });
+        gfs.collection('uploads');
+        let success = await gfs.files.deleteOne({ _id: file._id });
+        res.send({ success: true, file: file, msg: 'file has been deleted' });
+    } catch (err) {
+        res.send({ success: false, msg: err.msg });
+    }
+});
+
 app.post('/categories', async (req, res) => {
     let categories = req.body;
     for (let i = 0; i < categories.length; i++) {
