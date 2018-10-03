@@ -12,6 +12,11 @@ const style = {
     fontWeight: 300
 }
 
+const style2 = {
+    fontSize: '1.2rem',
+    fontWeight: 300
+}
+
 @inject("store")
 class DisplayClientEvent extends Component {
     handleClick = () => {
@@ -43,7 +48,7 @@ class DisplayClientEvent extends Component {
             //     </div>
             // </div>
             <React.Fragment>
-                <TableCell style={style}>{this.props.date}</TableCell>
+                <TableCell style={style2}>{this.props.date}</TableCell>
                 <TableCell style={style}>{this.props.startingTime}</TableCell>
                 <TableCell style={style}>{this.props.status}</TableCell>
                 <TableCell style={style}>{this.props.activityId.type}</TableCell>
