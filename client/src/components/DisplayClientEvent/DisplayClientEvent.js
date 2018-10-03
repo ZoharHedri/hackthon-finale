@@ -2,9 +2,15 @@ import React, { Component } from 'react'
 import { inject } from '../../../node_modules/mobx-react';
 import './DisplayClientEvent.scss';
 import Button from '@material-ui/core/Button';
-import moment from 'moment';
 import TableCell from '@material-ui/core/TableCell';
-const now = moment().format("DD/MM/YYYY");
+// import moment from 'moment';
+// const now = moment().format("DD/MM/YYYY");
+
+const style = {
+    wordBreak: 'break-word',
+    fontSize: '1.2rem',
+    fontWeight: 300
+}
 
 @inject("store")
 class DisplayClientEvent extends Component {
@@ -37,15 +43,15 @@ class DisplayClientEvent extends Component {
             //     </div>
             // </div>
             <React.Fragment>
-                <TableCell>{this.props.date}</TableCell>
-                <TableCell>{this.props.startingTime}</TableCell>
-                <TableCell>{this.props.status}</TableCell>
-                <TableCell>{this.props.activityId.type}</TableCell>
-                <TableCell>{this.props.name}</TableCell>
-                <TableCell>{this.props.address}</TableCell>
-                <TableCell>{this.props.email}</TableCell>
-                <TableCell>{this.props.phone}</TableCell>
-                <TableCell>
+                <TableCell style={style}>{this.props.date}</TableCell>
+                <TableCell style={style}>{this.props.startingTime}</TableCell>
+                <TableCell style={style}>{this.props.status}</TableCell>
+                <TableCell style={style}>{this.props.activityId.type}</TableCell>
+                <TableCell style={style}>{this.props.name}</TableCell>
+                <TableCell style={style}>{this.props.address}</TableCell>
+                <TableCell style={style}>{this.props.email}</TableCell>
+                <TableCell style={style}>{this.props.phone}</TableCell>
+                <TableCell style={style}>
                     <Button style={{ margin: "16px 0" }} color="secondary" variant="contained" onClick={this.handleClick}>{this.props.status.toUpperCase() === "FINISHED" ? "delete" : "cancel"}</Button>
                 </TableCell>
             </React.Fragment>

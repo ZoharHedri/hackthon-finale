@@ -27,15 +27,17 @@ class ClientEvents extends Component {
                 </div> */}
                 <Table style={{ tableLayout: 'fixed' }}>
                     <TableHead>
-                        <TableCell style={style}>Date</TableCell>
-                        <TableCell style={style}>Starting Time</TableCell>
-                        <TableCell style={style}>Status</TableCell>
-                        <TableCell style={style}>Type</TableCell>
-                        <TableCell style={style}>Name</TableCell>
-                        <TableCell style={style}>Address</TableCell>
-                        <TableCell style={style}>Email</TableCell>
-                        <TableCell style={style}>Phone</TableCell>
-                        <TableCell style={style}>Action</TableCell>
+                        <TableRow>
+                            <TableCell style={style}>Date</TableCell>
+                            <TableCell style={style}>Starting Time</TableCell>
+                            <TableCell style={style}>Status</TableCell>
+                            <TableCell style={style}>Type</TableCell>
+                            <TableCell style={style}>Name</TableCell>
+                            <TableCell style={style}>Address</TableCell>
+                            <TableCell style={style}>Email</TableCell>
+                            <TableCell style={style}>Phone</TableCell>
+                            <TableCell style={style}>Action</TableCell>
+                        </TableRow>
                     </TableHead>
                     <TableBody>
                         {this.props.store.clientEvents.map(item =>
