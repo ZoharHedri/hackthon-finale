@@ -1,0 +1,21 @@
+.setDay{
+    background: #fff;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    padding: 16px;
+
+    &__input{
+        border-radius: 3px;
+        border: 1px solid #eee;
+        padding: 5px;
+        margin-left: 16px;
+        &:not(:last-child){
+            margin-right: 16px;
+        }
+        &:focus{
+            outline: none;
+        }
+    }
+}

@@ -21,7 +21,7 @@ Router.get('/', passport.authenticate('jwt', { session: false }), (req, res) => 
     res.send({
         success: true,
         details: {
-            activites: req.user.activites, address: req.user.address, category: req.user.category,
+            activites: req.user.activites, address: req.user.address, category: req.user.category.name,
             clients: req.user.clients, email: req.user.email, name: req.user.name,
             phone: req.user.phone, eventsDay: events
         }

@@ -16,7 +16,7 @@ module.exports = function (passport) {
     passport.use(new JwtStrategy(opts, async function (jwt_payload, done) {
         try {
             let bussiness = await Bussiness.findOne({ _id: jwt_payload.id }).populate({
-                path: 'workingDays.events  activites',
+                path: 'workingDays.events  activites category',
                 populate: {
                     path: 'activityId',
                     model: 'activity'
@@ -32,7 +32,14 @@ module.exports = function (passport) {
                         path: 'activityId',
                         model: "activity"
                     }
-                });
+                })
+                    .populate({
+                        path: 'events',
+                        populate: {
+                            path: 'bussinessId',
+                            model: "business"
+                        }
+                    });
                 if (!client) return done(null, false);
                 return done(null, client);
             }

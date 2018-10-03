@@ -41,6 +41,9 @@ app.use(passport.initialize());
 // setting up passport to use the jwt strategy
 require('./config/passport')(passport);
 
+// require models
+const Category = require('./model/CategoryModel');
+
 const UserRoute = require('./routes/UserRoute');
 const BusinessRoute = require('./routes/BussinesRoute');
 const ActivitiesRoute = require('./routes/ActivitiesRoute');
@@ -63,6 +66,21 @@ app.get('/images/:filename', async (req, res) => {
     } catch (err) {
         res.send({ success: false, msg: err.msg });
     }
+})
+
+app.post('/categories', async (req, res) => {
+    let categories = req.body;
+    for (let i = 0; i < categories.length; i++) {
+        let newCat = new Category(categories[i]);
+        await newCat.save();
+    }
+    res.send({ success: true, msg: 'successfuly created categories!' });
+})
+
+app.get('/categories', async (req, res) => {
+    let categories = await Category.find({});
+    categories.sort((cat_a, cat_b) => cat_a.name.localeCompare(cat_b.name));
+    res.send({ success: true, categories });
 })
 
 const PORT = process.env.PORT || 8000;

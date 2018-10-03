@@ -1,59 +1,27 @@
 import React, { Component } from 'react'
-import moment from 'moment';
-import ClientEventForm from '../ClientEventForm/ClientEventForm';
 import { observer, inject } from '../../../node_modules/mobx-react';
 import './DisplayBussinessSearch.scss';
-import axios from 'axios';
-import Modal from '@material-ui/core/Modal';
-import Papper from '@material-ui/core/Paper';
-
-const DisplayWorkingDay = (props) => {
-    let now = moment().format("DD/MM/YYYY");
-    return (
-        <div style={{ backgroundColor: now === props.date ? "rgba(224, 86, 253, .2)" : "#fff", borderRadius: "5px" }} className="bussinessSearch__workingDays">
-            <div className="bussinessSearch__date">{props.date}</div>
-            {props.opendEvents.map(event => <ClientEventForm getOpendEventForActivity={props.getOpendEventForActivity} key={event._id} date={props.date} event={event} bussinessId={props.bussinessId} workingDayId={props._id} />)}
-        </div>
-    )
-};
-
-const DisplayActivty = (props) => {
-    return (
-        <React.Fragment>
-            <option value={props._id}>Type:{props.type} / Price:{props.price} / Duration:{props.duration}</option>
-        </React.Fragment>
-    )
-};
+import { Link } from 'react-router-dom';
 
 @inject("store")
 @observer
 class DisplayBussinessSearch extends Component {
-    state = {
-        // workingDays: [],
-        activityId: "",
-        open: false
-    }
-    handleChange = async (event) => {
-        event.persist();
-        // await this.setState({ activityId: event.target.value });
-        this.props.store.activityId = event.target.value;
-        this.props.store.setCientEventForm({ key: event.target.name, value: event.target.value })
-        this.getOpendEventForActivity(event.target.value);
-    }
-
-    getOpendEventForActivity = (/*activityId*/) => {
-        let token = localStorage.getItem('TOKEN');
-        let opts = {}
-        opts.headers = { Authorization: token }
-        axios.get(`/bussiness/${this.props._id}/activity/${this.props.store.activityId}/events`, opts)
-            // .then(res => this.setState({ workingDays: res.data.workingDays, open: true }));
-            .then(res => this.setState({ open: true }));
-    }
-
-    handleClose = () => {
-        this.setState({ open: false });
+    calculateWidth = () => {
+        let starTotal = 5;
+        let starPercentage = (this.props.rating / starTotal) * 100;
+        const starPercentageRounded = `${Math.round(starPercentage / 10) * 10}%`;
+        return starPercentageRounded;
     }
     render() {
+        let activites = JSON.stringify(this.props.activites);
+        let address = this.props.address;
+        let _id = this.props._id;
+        let avatarUrl = this.props.avatarUrl;
+        let category = JSON.stringify(this.props.category);
+        let email = this.props.email;
+        let name = this.props.name;
+        let phone = this.props.phone;
+        let workingDays = JSON.stringify(this.props.workingDays);
         return (
             <div className="bussinessSearch">
                 <div className="bussinessSearch__item">
@@ -61,28 +29,53 @@ class DisplayBussinessSearch extends Component {
                         <img className="bussinessSearch__item__img" src={`/images/${this.props.avatarUrl}`} alt="" />
                     </div>
                     <div className="bussinessSearch__item__detail">
-                        <div className="bussinessSearch__item-name">{this.props.name}</div>
-                        <div className="bussinessSearch__item__cat">{this.props.category}</div>
-                        <select onChange={this.handleChange} name="activityId" defaultValue="">
-                            <option value="" disabled="disabled" hidden="hidden">Choose activity</option>
-                            {this.props.activites.map(item => <DisplayActivty key={item._id} {...item} />)}
-                        </select>
-                    </div>
-                </div>
-                <Modal
-                    aria-labelledby="simple-modal-title"
-                    aria-describedby="simple-modal-description"
-                    disableAutoFocus={true}
-                    open={this.state.open}
-                    onClose={this.handleClose}
-                >
-                    <Papper className="papper_center">
-                        <div className="bussinessSearch__days-box">
-                            {this.props.store.workingDays.map(item => <DisplayWorkingDay getOpendEventForActivity={this.getOpendEventForActivity} key={item._id} {...item} activites={this.props.activites} opendEvents={item.opendEvents} bussinessId={this.props._id} />)}
+                        <Link to={{ pathname: `${this.props.name}/info`, state: { _id, activites, address, avatarUrl, category, email, name, phone, workingDays } }} className="bussinessSearch__item-name">{this.props.name}</Link>
+                        <div className="bussinessSearch__item-box">
+                            <div className="bussinessSearch__item-cat" style={{ background: this.props.category.color.hex }}>{this.props.category.name}</div>
+                            <div className="bussinessSearch__rating-container">
+                                <div className="bussinessSearch__rating-warp">
+                                    <div className="bussinessSearch__rating-box">
+                                        <svg className="bussinessSearch__star">
+                                            <use xlinkHref="/sprite.svg#icon-star-full" />
+                                        </svg>
+                                        <svg className="bussinessSearch__star">
+                                            <use xlinkHref="/sprite.svg#icon-star-full" />
+                                        </svg>
+                                        <svg className="bussinessSearch__star">
+                                            <use xlinkHref="/sprite.svg#icon-star-full" />
+                                        </svg>
+                                        <svg className="bussinessSearch__star">
+                                            <use xlinkHref="/sprite.svg#icon-star-full" />
+                                        </svg>
+                                        <svg className="bussinessSearch__star">
+                                            <use xlinkHref="/sprite.svg#icon-star-full" />
+                                        </svg>
+                                    </div>
+                                    <div style={{ width: this.calculateWidth() }} className="bussinessSearch__rating-box-yellow">
+                                        <svg className="bussinessSearch__star">
+                                            <use xlinkHref="/sprite.svg#icon-star-full" />
+                                        </svg>
+                                        <svg className="bussinessSearch__star">
+                                            <use xlinkHref="/sprite.svg#icon-star-full" />
+                                        </svg>
+                                        <svg className="bussinessSearch__star">
+                                            <use xlinkHref="/sprite.svg#icon-star-full" />
+                                        </svg>
+                                        <svg className="bussinessSearch__star">
+                                            <use xlinkHref="/sprite.svg#icon-star-full" />
+                                        </svg>
+                                        <svg className="bussinessSearch__star">
+                                            <use xlinkHref="/sprite.svg#icon-star-full" />
+                                        </svg>
+                                    </div>
+                                </div>
+                                <span className="bussinessSearch__star-number">{this.props.rating.toFixed(1)}</span>
+                            </div>
                         </div>
-                    </Papper>
-                </Modal>
-            </div>
+                    </div>
+
+                </div>
+            </div >
         )
     }
 }

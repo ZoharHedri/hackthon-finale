@@ -4,7 +4,7 @@ const passport = require('passport');
 const Client = require('../model/ClientsModel');
 const Event = require('../model/EventModel');
 const Bussiness = require('../model/BussinesModel');
-
+const jwt = require('jsonwebtoken');
 
 
 const upload = require('../config/upload');
@@ -29,7 +29,9 @@ Router.post('/register', upload, async (req, res) => {
         req.body.avatarUrl = req.file.filename;
         let newClient = new Client(req.body);
         let client = await newClient.save();
-        res.json({ success: true, msg: "u have been registerd" });
+        let token = jwt.sign({ id: client.id }, process.env.SECERT_KEY);
+        return res.json({ success: true, user: 'client', token: 'JWT ' + token });
+        // res.json({ success: true, msg: "u have been registerd", token: });
     } catch (err) {
         res.json({ success: false, errors: err })
     }
@@ -60,6 +62,18 @@ Router.get('/events', passport.authenticate('jwt', { session: false }), (req, re
     let eventsSortedByDate = req.user.events.sort(
         (event1, event2) => event2.date - event1.date
     )
+    eventsSortedByDate = eventsSortedByDate.map(event => ({
+        activityId: event.activityId,
+        date: event.date,
+        _id: event._id,
+        startingTime: event.startingTime,
+        workingDayId: event.workingDayId,
+        status: event.status,
+        name: event.bussinessId.name,
+        address: event.bussinessId.address,
+        email: event.bussinessId.email,
+        phone: event.bussinessId.phone
+    }));
     let client = {
         name: req.user.name,
         phone: req.user.phone,
@@ -132,6 +146,22 @@ Router.delete('/event/:eventId', passport.authenticate('jwt', { session: false }
 
 })
 
-
+Router.post('/rating/:bussinessId', passport.authenticate('jwt', { session: false }), async (req, res) => {
+    let bussiness = await Bussiness.findOne({ _id: req.params.bussinessId });
+    bussiness.ratingVote[req.body.rating] += 1;
+    let ratingVote = bussiness.ratingVote.toObject();
+    let sum = 0;
+    let total = 0;
+    for (let key in ratingVote) {
+        if (ratingVote.hasOwnProperty(key)) {
+            sum += Number(key) * ratingVote[key];
+            total += ratingVote[key];
+        }
+    }
+    let rating = sum / total;
+    bussiness.rating = rating;
+    let savedBussiness = await bussiness.save();
+    res.send({ success: true, data: "seccsefully rated" });
+})
 
 module.exports = Router;

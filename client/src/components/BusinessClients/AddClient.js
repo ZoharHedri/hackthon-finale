@@ -4,8 +4,7 @@ import './AddClient.scss';
 import ErrorList from '../ErrorList/ErrorList';
 import Message from '../Message/Message';
 import { debounce } from 'lodash';
-import LoadingHOC from '../LoadingHOC/LoadingHOC';
-
+import { Redirect } from 'react-router-dom';
 @inject('store')
 @observer
 class AddClient extends Component {
@@ -33,6 +32,7 @@ class AddClient extends Component {
     this.handleKeyUpEmail.cancel();
     this.props.store._clearErrors();
     this.props.store._clearMessage();
+    this.props.store.success = false;
   }
 
 
@@ -78,11 +78,10 @@ class AddClient extends Component {
               <span className="register__label" >Upload File</span>
               <input required className="register__input" onChange={this.handleChange} name="avatar" type="file" />
             </div>
-            <LoadingHOC>
-              <button className="register__btn" type="submit">Register</button>
-            </LoadingHOC>
+            <button className="register__btn" type="submit">Register</button>
           </form>
         </div>
+        {this.props.store.success && <Redirect to="/" />}
       </div>
     )
   }

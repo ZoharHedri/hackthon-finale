@@ -10,12 +10,14 @@ import Redirect from 'react-router-dom/Redirect';
 import ActivityForm from '../Activities/ActivityForm';
 import BussinessCalendar from '../BussinessCalendar/BussinessCalendar';
 import Button from '@material-ui/core/Button'
+import FormCalendar from '../BussinessCalendar/FormCalendar';
 
 @inject("store")
 @observer
 export class Bussiness extends Component {
     componentDidMount() {
         this.props.store.getSettingApi();
+        this.props.store._getBussinessMonthDays();
     }
     handleClick = () => {
         this.props.store.logout();
@@ -27,7 +29,8 @@ export class Bussiness extends Component {
                 <div className="bussiness__main">
                     <header className="bussiness__header">
                         {/* className="bussiness__btn" */}
-                        <Button style={{ marginLeft: "auto", marginRight: "16px" }} variant="extendedFab" color="primary" onClick={this.handleClick} >logOut</Button>
+                        <Route excat path="/business/calendar" component={FormCalendar} />
+                        <Button style={{ marginLeft: "auto", marginRight: "16px" }} variant="outlined" color="primary" onClick={this.handleClick} >logOut</Button>
                     </header>
                     <Route exact path="/business/dashboard" component={Dashboard} />
                     <Route exact path="/business/setting" component={Setting} />

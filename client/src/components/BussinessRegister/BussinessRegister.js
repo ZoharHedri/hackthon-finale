@@ -4,7 +4,7 @@ import './BussinessRegister.scss';
 import { debounce } from 'lodash';
 import Message from '../Message/Message';
 import ErrorList from '../ErrorList/ErrorList';
-import LoadingHOC from '../LoadingHOC/LoadingHOC';
+import { Redirect } from 'react-router-dom';
 
 @inject(allStore => ({
     setRegisterBussinessForm: allStore.store.setRegisterBussinessForm,
@@ -14,6 +14,9 @@ import LoadingHOC from '../LoadingHOC/LoadingHOC';
     _clearErrors: allStore.store._clearErrors,
     _clearMessage: allStore.store._clearMessage,
     message: allStore.store.message,
+    success: allStore.store.success,
+    setSuccess: allStore.store.setSuccess,
+    categories: allStore.store.categories
 }))
 @observer
 class BussinessRegister extends Component {
@@ -40,6 +43,7 @@ class BussinessRegister extends Component {
         this.handleKeyUpEmail.cancel();
         this.props._clearErrors();
         this.props._clearMessage();
+        this.props.setSuccess(false);
     }
 
     render() {
@@ -89,7 +93,7 @@ class BussinessRegister extends Component {
                             <span className="register__label" >Category</span>
                             <select className="register__select" onChange={this.handleChange} name="category" defaultValue="">
                                 <option value="" disabled="disabled" hidden="hidden">Choose Category</option>
-                                <option value="Arts, crafts, and collectibles">Arts, crafts, and collectibles</option>
+                                {/* <option value="Arts, crafts, and collectibles">Arts, crafts, and collectibles</option>
                                 <option value="Baby">Baby</option>
                                 <option value="Beauty and fragrances">Beauty and fragrances</option>
                                 <option value="Books and magazines">Books and magazines</option>
@@ -110,18 +114,18 @@ class BussinessRegister extends Component {
                                 <option value="Sports and outdoors">Sports and outdoors</option>
                                 <option value="Toys and hobbies">Toys and hobbies</option>
                                 <option value="Travel">Travel</option>
-                                <option value="Other">Other</option>
+                                <option value="Other">Other</option> */}
+                                {this.props.categories.map(item => <option key={item._id} value={item._id}>{item.name}</option>)}
                             </select>
                         </div>
                         <div className="register__input-group">
                             <span className="register__label" >Upload File</span>
                             <input required className="register__input" onChange={this.handleChange} name="avatar" type="file" />
                         </div>
-                        <LoadingHOC>
-                            <button className="register__btn" type="submit">Sign up</button>
-                        </LoadingHOC>
+                        <button className="register__btn" type="submit">Sign up</button>
                     </form>
                 </div>
+                {this.props.success && <Redirect to="/" />}
             </div >
         )
     }

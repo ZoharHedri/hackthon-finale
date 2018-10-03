@@ -8,7 +8,6 @@ const TimeDuration = new Schema({
     timeEnd: String
 })
 
-
 const WorkDaySchema = new Schema({
     timeDuration: TimeDuration,
     date: { type: String, unique: true },
@@ -18,7 +17,15 @@ const WorkDaySchema = new Schema({
 
 const BussinessSchema = new Schema({
     name: { type: String, required: true },
-    category: { type: String, required: true },
+    category: { type: Schema.Types.ObjectId, ref: 'category', required: true },
+    ratingVote: {
+        5: { type: Number, deafult: 0 },
+        4: { type: Number, deafult: 0 },
+        3: { type: Number, deafult: 0 },
+        2: { type: Number, deafult: 0 },
+        1: { type: Number, deafult: 0 },
+    },
+    rating: { type: Number, default: 0 },
     phone: { type: String, required: true },
     email: { type: String, unique: true, required: true },
     password: { type: String, required: true },

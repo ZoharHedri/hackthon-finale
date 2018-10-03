@@ -19,6 +19,8 @@ class Store {
                 this.workingDays = data.workingDays;
             // this.open = true;
         })
+
+        this.getCategories();
     }
 
     @observable registerBussinessForm = {
@@ -89,7 +91,11 @@ class Store {
     token = localStorage.getItem('TOKEN');
     options = { headers: { "Authorization": this.token } };
     @observable isLoading = false;
+    @observable success = false;
 
+
+    @observable date = "";
+    @observable openModalDay = false;
 
     @action removeActivity = async (activity_id) => {
         try {
@@ -265,6 +271,13 @@ class Store {
         this.loginForm.password = "";
     }
 
+    @observable categories = [];
+    @action getCategories = async () => {
+        let res = await axios.get('/categories');
+        if (res.data.success) {
+            this.categories = res.data.categories;
+        }
+    }
 
     // register bussiness to database
     @action registerBussiness = async () => {
@@ -279,6 +292,17 @@ class Store {
             if (!res.data.success) {
                 this.errors = res.data.errors;
             } else {
+                // we saved the token from the server in localstorage
+                localStorage.setItem('TOKEN', res.data.token);
+                this.token = res.data.token;
+                this.options = { headers: { "Authorization": this.token } };
+                let user = {
+                    loggedIn: true,
+                    userModel: res.data.user === 'business' ? res.data.user + "/dashboard" : res.data.user + '/search'
+                }
+                this.userStatus = user;
+                this.success = true;
+                this._clearErrors();
                 this.clearRegisterBussinessForm();
                 this._clearErrors();
             }
@@ -288,6 +312,10 @@ class Store {
         } finally {
             this.isLoading = false;
         };
+    }
+
+    @action setSuccess = (value) => {
+        this.success = value;
     }
 
     // register client to database
@@ -301,7 +329,17 @@ class Store {
             this.isLoading = true;
             let res = await axios.post('/clients/register', fd, opts);
             if (res.data.success) {
-                return res.data.success;
+                // we saved the token from the server in localstorage
+                localStorage.setItem('TOKEN', res.data.token);
+                this.token = res.data.token;
+                this.options = { headers: { "Authorization": this.token } };
+                let user = {
+                    loggedIn: true,
+                    userModel: res.data.user === 'business' ? res.data.user + "/dashboard" : res.data.user + '/search'
+                }
+                this.userStatus = user;
+                this.success = true;
+                this._clearErrors();
             } else {
                 this.errors = res.data.errors;
             }
@@ -453,8 +491,27 @@ class Store {
             this.isLoading = true;
             let res = await axios.post('/bussiness/calendar/', periodWorkDays, this.options)
             this.isLoading = false;
-            console.log(res.data);
-        } catch (err) { console.log(err.msg) };
+            if (res.data.success) {
+                this._getBussinessMonthDays();
+            }
+        } catch (err) {
+            console.log(err.msg)
+        } finally {
+            let bussinessCalendar = {
+                startPeriod: moment().startOf('month').format("YYYY-MM-DD"),
+                endPeriod: moment().endOf('month').format("YYYY-MM-DD"),
+                workDays: [
+                    { day: "weekday-sun", flag: false, statrTime: '', endTime: '' },
+                    { day: "weekday-mon", flag: false, statrTime: '', endTime: '' },
+                    { day: "weekday-tue", flag: false, statrTime: '', endTime: '' },
+                    { day: "weekday-wed", flag: false, statrTime: '', endTime: '' },
+                    { day: "weekday-thu", flag: false, statrTime: '', endTime: '' },
+                    { day: "weekday-fri", flag: false, statrTime: '', endTime: '' },
+                    { day: "weekday-sat", flag: false, statrTime: '', endTime: '' },
+                ]
+            }
+            this.bussinessCalendar = bussinessCalendar;
+        }
     }
 
 

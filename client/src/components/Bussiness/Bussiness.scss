@@ -1,7 +1,9 @@
 .bussiness{
-    width: 1200px;
-    min-height: 870px;
-    margin: 80px auto;
+    // width: 1200px;
+    // min-height: 870px;
+    // margin: 80px auto;
+    min-width: 100vw;
+    min-height: 100vh;
     background: #f3f5f8;
     display: flex;
     &__sidebar{
@@ -14,6 +16,9 @@
 
     &__main{
         flex: 1;
+        min-height: 100vh;
+        max-height: 100vh;
+        overflow: auto;
     }
 
     &__header{
@@ -79,7 +84,9 @@
 
     
 
-    &__item--active  &__icon,&__item--active  &__icon,&__item--active  &__link:link, &__item--active  &__link:visited{
+    &__item--active  &__icon
+    ,&__item--active  &__link:link
+    , &__item--active  &__link:visited{
         fill: #fff ;
         color: #fff;
     }

@@ -3,6 +3,7 @@ import { inject } from '../../../node_modules/mobx-react';
 import './DisplayClientEvent.scss';
 import Button from '@material-ui/core/Button';
 import moment from 'moment';
+import TableCell from '@material-ui/core/TableCell';
 const now = moment().format("DD/MM/YYYY");
 
 @inject("store")
@@ -12,29 +13,42 @@ class DisplayClientEvent extends Component {
     }
     render() {
         return (
-            <div className="card-box">
-                <div className="card">
-                    <div className={now === this.props.date ? "card__side card__side--front card__side--front-today" : "card__side card__side--front"}>
-                        <div className="card__profile">
-                            <span className="card__headline">New Event</span>
-                            <div className="card__img-box">
-                                <svg className="card__img">
-                                    <use xlinkHref="/sprite.svg#icon-stopwatch" />
-                                </svg>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="card__side card__side--back card__side--back-1">
-                        <div className="event-box">
-                            <div>{this.props.date}</div>
-                            <div>{this.props.startingTime}</div>
-                            <div>{this.props.status}</div>
-                            <div>{this.props.activityId.type}</div>
-                            <Button style={{ margin: "16px 0" }} color="secondary" variant="contained" onClick={this.handleClick}>{this.props.status.toUpperCase() === "FINISHED" ? "delete" : "cancel"}</Button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            // <div className="card-box">
+            //     <div className="card">
+            //         <div className={now === this.props.date ? "card__side card__side--front card__side--front-today" : "card__side card__side--front"}>
+            //             <div className="card__profile">
+            //                 <span className="card__headline">New Event</span>
+            //                 <div className="card__img-box">
+            //                     <svg className="card__img">
+            //                         <use xlinkHref="/sprite.svg#icon-stopwatch" />
+            //                     </svg>
+            //                 </div>
+            //             </div>
+            //         </div>
+            //         <div className="card__side card__side--back card__side--back-1">
+            //             <div className="event-box">
+            //                 <div>{this.props.date}</div>
+            //                 <div>{this.props.startingTime}</div>
+            //                 <div>{this.props.status}</div>
+            //                 <div>{this.props.activityId.type}</div>
+            // <Button style={{ margin: "16px 0" }} color="secondary" variant="contained" onClick={this.handleClick}>{this.props.status.toUpperCase() === "FINISHED" ? "delete" : "cancel"}</Button>
+            //             </div>
+            //         </div>
+            //     </div>
+            // </div>
+            <React.Fragment>
+                <TableCell>{this.props.date}</TableCell>
+                <TableCell>{this.props.startingTime}</TableCell>
+                <TableCell>{this.props.status}</TableCell>
+                <TableCell>{this.props.activityId.type}</TableCell>
+                <TableCell>{this.props.name}</TableCell>
+                <TableCell>{this.props.address}</TableCell>
+                <TableCell>{this.props.email}</TableCell>
+                <TableCell>{this.props.phone}</TableCell>
+                <TableCell>
+                    <Button style={{ margin: "16px 0" }} color="secondary" variant="contained" onClick={this.handleClick}>{this.props.status.toUpperCase() === "FINISHED" ? "delete" : "cancel"}</Button>
+                </TableCell>
+            </React.Fragment>
         )
     }
 }

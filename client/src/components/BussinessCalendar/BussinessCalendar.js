@@ -1,12 +1,13 @@
 import React, { Component, Children } from 'react';
 import { inject, observer } from '../../../node_modules/mobx-react';
 
-import FormCalendar from './FormCalendar';
 import BigCalendar from 'react-big-calendar';
 import moment from 'moment';
 
 import 'react-big-calendar/lib/css/react-big-calendar.css';
-import './BussinessCalendar.css';
+import './BussinessCalendar.scss';
+import SetDay from './SetDay';
+import { Modal, Button } from '@material-ui/core';
 
 
 
@@ -15,22 +16,22 @@ let allViews = Object.keys(BigCalendar.Views).map(k => k !== "agenda" ? BigCalen
 
 BigCalendar.momentLocalizer(moment); // or globalizeLocalizer
 
-const handleSelect = ({ start, end }) => {
-  // debugger;
-  alert("fdjhtd");
-}
 
+// #FFD400 #34E555 #0493F9
 @inject("store")
 @observer
 class ColoredDateCellWrapper extends Component {
-  START_PERIOD = moment(this.props.store.bussinessCalendar.startPeriod).toDate();
-  END_PERIOD = moment(this.props.store.bussinessCalendar.endPeriod).toDate();
+  START_PERIOD = moment().startOf('month').toDate();
+  END_PERIOD = moment().endOf('month').toDate();
   render() {
-    let found = this.props.store.monthDays.find(day => moment(day.date, "DD/MM/YYYY").toDate() === this.props.value);
+    let value = moment(this.props.value).format("DD/MM/YYYY");
+    let found = this.props.store.monthDays.find(day => {
+      return day.date === value
+    });
     return React.cloneElement(Children.only(this.props.children), {
       style: {
         ...this.props.children.style,
-        backgroundColor: found ? "red" : this.props.value >= this.START_PERIOD && this.props.value <= this.END_PERIOD ? '#f5f5f5' : '#fff',
+        backgroundColor: found ? "#0493F9" : this.props.value >= this.START_PERIOD && this.props.value <= this.END_PERIOD ? '#f5f5f5' : '#fff',
       },
     });
   }
@@ -74,53 +75,63 @@ const CustomToolbar = (toolbar) => {
             <use xlinkHref="/sprites/solid.svg#chevron-right" />
           </svg>
         </div>
-        <button style={{ cursor: 'pointer', background: "#eee", border: 'none', margin: '0 16px', padding: '5px 15px', borderRadius: '5px' }} onClick={goToCurrent}>today</button>
+        <Button variant="flat" color="secondary" onClick={goToCurrent}>today</Button>
 
       </div>
       <label className={'label-date'}>{label()}</label>
+      <div className="btn-view-group">
+        <Button variant="flat" color="primary" type="button" onClick={() => toolbar.onViewChange('month')}>Month</Button>
+        <Button variant="flat" color="primary" type="button" onClick={() => toolbar.onViewChange('week')}>Week</Button>
+        <Button variant="flat" color="primary" type="button" onClick={() => toolbar.onViewChange('day')}>Day</Button>
+        <Button variant="flat" color="primary" type="button" onClick={() => toolbar.onViewChange('agenda')}>Agenda</Button>
+      </div>
     </div >
   );
 }
 
+class EventStyle extends Component {
+  render() {
+    let start = moment(this.props.event.start).format("hh:mm");
+    let end = moment(this.props.event.end).format("hh:mm");
+    return <div className="eventStyle">
+      <div className="eventStyle__title">{this.props.title}</div>
+      <div className="eventStyle__time">{start} - {end}</div>
+    </div>
+  }
+}
+
+@inject("store")
 @observer
 class Calendar extends Component {
   eventStyleGetter = (event, start, end, isSelected) => {
-    let backgroundColor;
-    let fontWeight;
-    let date = moment(start).format("DD/MM/YYYY");
-    let now = moment().format("DD/MM/YYYY");
-    if (date === now) {
-      backgroundColor = '#f1c40f';
-      fontWeight = 700;
-    }
-    else {
-      backgroundColor = '#2ecc71';
-    }
     let style = ({
-      backgroundColor: backgroundColor,
-      borderRadius: '5px',
-      fontWeight: fontWeight || 400,
-      opacity: 0.8,
-      color: '#fff',
-      border: '0px',
-      display: 'block',
-      position: 'relative',
-      '&::before': {
-        content: `""`,
-        position: 'absolute',
-        left: '0px',
-        top: '0px',
-        width: '3px',
-        height: '100%',
-        background: "#f00"
-      }
+      backgroundColor: 'transparent',
+      border: 'none',
+      display: 'block'
     });
     return {
       style: style
     };
   }
+  handleSelect = (e) => {
+    let today = moment();
+    let date = moment(e.start);
+    if (date < today) return;
+    this.props.store.date = date.format("DD/MM/YYYY");
+    this.props.store.openModalDay = true;
+  }
+  handleClose = () => {
+    this.props.store.openModalDay = false;
+  }
   render() {
     return <div className="calanderConteiner">
+      <Modal
+        aria-labelledby="simple-modal-title"
+        aria-describedby="simple-modal-description"
+        open={this.props.store.openModalDay}
+        onClose={this.handleClose}>
+        <SetDay />
+      </Modal>
       <BigCalendar
         events={this.props.events}
         defaultView={BigCalendar.Views.MONTH}
@@ -129,10 +140,11 @@ class Calendar extends Component {
         eventPropGetter={this.eventStyleGetter}
         components={{
           dateCellWrapper: ColoredDateCellWrapper,
-          toolbar: CustomToolbar
+          toolbar: CustomToolbar,
+          event: EventStyle
         }}
-        onSelectEvent={event => alert(event.title)}
-        onSelectSlot={handleSelect}
+        // onSelectEvent={event => alert(event.title)}
+        onSelectSlot={this.handleSelect}
         scrollToTime={new Date(2018, 7, 1, 6)}
         step={15}
         timeslots={1}
@@ -151,12 +163,10 @@ class Calendar extends Component {
 class BussinessCalendar extends Component {
   componentDidMount() {
     this.props.store._getBussinessEvents();
-    this.props.store._getBussinessMonthDays();
   }
   render() {
     return (
       <div>
-        <FormCalendar />
         <Calendar startPeriod={this.props.store.bussinessCalendar.startPeriod}
           events={this.props.store.events}
         />

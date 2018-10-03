@@ -6,6 +6,7 @@ const moment = require('moment');
 const Pusher = require('pusher');
 const crypto = require("crypto");
 const upload = require('../config/upload');
+const jwt = require('jsonwebtoken');
 
 const pusher = new Pusher({
     appId: process.env.PUSHER_APP_ID,
@@ -31,7 +32,7 @@ Router.get('/setting', passport.authenticate("jwt", { session: false }), (req, r
         phone: req.user.phone,
         email: req.user.email,
         address: req.user.address,
-        category: req.user.category,
+        category: req.user.category.name,
         oldPassword: "",
         password: "",
         confirmPassword: ""
@@ -59,7 +60,7 @@ Router.post('/update', passport.authenticate("jwt", { session: false }), async (
         req.user.phone = req.body.phone;
         req.user.email = req.body.email;
         req.user.address = req.body.address;
-        req.user.category = req.body.category;
+        // req.user.category = req.body.category;
 
         let bussiness = await req.user.save();
         res.json({ success: true, msg: "bussiness has been updated" });
@@ -124,9 +125,18 @@ Router.post('/register', upload, async (req, res) => {
             throw errors;
         }
         req.body.avatarUrl = req.file.filename;
+        req.body.ratingVote = {
+            5: 0,
+            4: 0,
+            3: 0,
+            2: 0,
+            1: 0
+        };
         let newBussiness = new Bussiness(req.body);
         let bussiness = await newBussiness.save()
-        res.send({ success: true, msg: "u have been registerd.. you can login." });
+        let token = jwt.sign({ id: bussiness.id }, process.env.SECERT_KEY);
+        return res.json({ success: true, user: 'business', token: 'JWT ' + token })
+        // res.send({ success: true, msg: "u have been registerd.. you can login." });
     }
     catch (err) {
         res.json({ success: false, errors: err })
@@ -221,7 +231,7 @@ Router.get('/clients', passport.authenticate('jwt', { session: false }), (req, r
 Router.get('/search/:search', async (req, res) => {
     let search = req.params.search;
     let exp = new RegExp(search, 'i');
-    let business = await Bussiness.find({}).populate({ path: 'workingDays.events activites', populate: { path: "activityId", model: "activity" } });
+    let business = await Bussiness.find({}).populate({ path: 'workingDays.events activites category', populate: { path: "activityId", model: "activity" } });
     if (business.length === 0) {
         res.send({ success: true, filter: business })
     }
@@ -236,11 +246,19 @@ Router.get('/:bussinessId/activity/:activityId/events', async (req, res) => {
     let bussinessId = req.params.bussinessId;
     let activityId = req.params.activityId;
     let filter = await Bussiness.findOne({ _id: bussinessId }).populate({ path: 'activites workingDays.events', populate: { path: 'activityId', model: 'activity' } });
-
+    let timeNow = moment();
+    let dayNow = moment().format("DD/MM/YYYY");
+    let timeSleep = moment();
+    timeSleep.set({ hours: 0, minutes: 0 });
     filter.workingDays = filter.workingDays.filter(days => {
         let moment1 = days.date;
         let moment2 = moment().format("DD/MM/YYYY");
         return moment1 >= moment2;
+    })
+    filter.workingDays.sort((day1, day2) => {
+        let moment1 = moment(day1.date, "DD/MM/YYYY");
+        let moment2 = moment(day2.date, "DD/MM/YYYY");
+        return moment1 - moment2;
     })
     filter.workingDays = filter.workingDays.slice(0, 5);
     let activity = filter.activites.find(item => item.id === activityId);
@@ -274,7 +292,19 @@ Router.get('/:bussinessId/activity/:activityId/events', async (req, res) => {
         let times = [];
         // first we added the regular times from the activity
         for (let time = timeStart; time <= timeEnd; time.add(activityDuration, 'minutes')) {
-            times.push(time.format("HH:mm"));
+            // check if the time has passed
+            if (workDay.date === dayNow) {
+                let timeFormat = moment(time);
+
+                if (timeNow >= timeSleep) {
+                    if (timeNow >= timeFormat) continue;
+                    times.push(timeFormat);
+                } else {
+                    times.push(timeFormat);
+                }
+            } else {
+                times.push(time.format("HH:mm"));
+            }
         }
         let needToSort = false;
         // then we added the end time of each event
@@ -328,7 +358,7 @@ Router.get('/:bussinessId/activity/:activityId/events', async (req, res) => {
     let events = filter.workingDays.reduce((arr, curr) => [...arr, ...curr.opendEvents], []);
     if (events.length === 0) return res.send({ success: true, workingDays: [] });
 
-    workingDays = filter.workingDays.map(workDay => ({
+    let workingDays = filter.workingDays.map(workDay => ({
         _id: workDay.id,
         opendEvents: workDay.opendEvents,
         date: workDay.date
@@ -348,4 +378,9 @@ Router.get('/month/days', passport.authenticate('jwt', { session: false }), (req
     res.send({ success: true, monthDays });
 })
 
+Router.post('/setDay', passport.authenticate('jwt', { session: false }), async (req, res) => {
+    req.user.workingDays = req.user.workingDays.concat(req.body);
+    let user = await req.user.save();
+    res.send({ success: true, msg: 'work day has been saved' });
+})
 module.exports = Router;
